@@ -1,0 +1,12 @@
+{
+  "name": "@edgeflow/backend-c",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@edgeflow/backend-shared": "file:../shared"
+  }
+}

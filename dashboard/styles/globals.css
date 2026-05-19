@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+html,
+body {
+  @apply bg-edge-bg text-edge-foreground antialiased;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 rounded-full;
+}
+
+@layer components {
+  .card {
+    @apply bg-white border border-edge-border rounded-lg p-6 shadow-card;
+  }
+
+  .card-title {
+    @apply text-sm font-semibold text-edge-foreground;
+  }
+
+  .card-subtitle {
+    @apply text-xs text-edge-muted mt-1;
+  }
+
+  .section-label {
+    @apply text-xs font-medium uppercase tracking-wider text-edge-muted;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2.5 rounded-md bg-black text-white text-sm font-medium
+      hover:bg-neutral-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2.5 rounded-md border border-edge-border text-sm text-edge-foreground
+      hover:border-neutral-400 hover:bg-neutral-50 transition-colors disabled:opacity-40;
+  }
+
+  .btn-danger {
+    @apply px-4 py-2.5 rounded-md bg-neutral-800 text-white text-sm font-medium
+      hover:bg-black transition-colors;
+  }
+
+  .chip {
+    @apply px-3 py-1.5 rounded-md text-sm font-mono border border-edge-border text-edge-muted
+      hover:border-neutral-400 hover:text-edge-foreground transition-colors;
+  }
+
+  .chip-active {
+    @apply bg-black border-black text-white hover:text-white hover:border-black;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 rounded-md bg-white border border-edge-border text-sm font-mono
+      text-edge-foreground focus:outline-none focus:ring-1 focus:ring-black focus:border-black;
+  }
+
+  .alert {
+    @apply rounded-lg border border-edge-border bg-edge-surface px-4 py-3 text-sm text-edge-muted;
+  }
+
+  .table-head {
+    @apply text-edge-muted border-b border-edge-border;
+  }
+
+  .table-row {
+    @apply border-b border-edge-border/60 hover:bg-neutral-50;
+  }
+}

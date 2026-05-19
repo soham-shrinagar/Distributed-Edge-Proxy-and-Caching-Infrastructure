@@ -1,0 +1,32 @@
+{
+  "name": "edgeflow-infrastructure",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Distributed Edge Proxy & Intelligent Caching Infrastructure",
+  "workspaces": [
+    "edge-proxy",
+    "backend-servers/server1",
+    "backend-servers/server2",
+    "backend-servers/server3",
+    "dashboard"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "start": "node scripts/start-all.js",
+    "stop": "node scripts/stop-all.js",
+    "proxy": "npm run start --workspace=edge-proxy",
+    "backends": "node scripts/start-backends.js",
+    "dashboard": "npm run dev --workspace=dashboard",
+    "traffic": "node scripts/traffic-generator.js",
+    "stress": "node scripts/stress-test.js",
+    "benchmark": "node scripts/benchmark.js",
+    "db:init": "node scripts/init-db.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "autocannon": "^7.15.0",
+    "concurrently": "^9.1.0"
+  }
+}
