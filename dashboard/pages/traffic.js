@@ -3,11 +3,14 @@
 import PieChartCard from '../charts/PieChartCard';
 import TimeSeriesChart from '../charts/TimeSeriesChart';
 import StatCard from '../components/StatCard';
+import PageIntro, { ChartPanel } from '../components/PageIntro';
 import { useMetricsContext } from '../hooks/useMetrics';
+import { PAGE_META } from '../lib/pageMeta';
 
 export default function TrafficPage() {
   const { metrics, history } = useMetricsContext();
   const m = metrics || {};
+  const meta = PAGE_META['/traffic'];
 
   const pieData =
     m.trafficDistribution?.map((b) => ({
@@ -19,55 +22,70 @@ export default function TrafficPage() {
 
   return (
     <div className="space-y-8">
+      <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Req/s" value={(m.requestsPerSecond ?? 0).toFixed(1)} variant="accent" />
-        <StatCard title="Total Requests" value={m.totalRequests ?? 0} />
+        <StatCard
+          title="Req/s"
+          value={(m.requestsPerSecond ?? 0).toFixed(1)}
+          hint="Current throughput"
+          variant="accent"
+        />
+        <StatCard title="Total Requests" value={m.totalRequests ?? 0} hint="Lifetime count" />
         <StatCard
           title="Bandwidth Saved"
           value={formatBytes(compression.savingsBytes ?? 0)}
+          hint="Via compression"
         />
         <StatCard
           title="Compression Ratio"
           value={((compression.overallRatio ?? 1) * 100).toFixed(0)}
           unit="%"
+          hint="Bytes reduced"
         />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <section className="card">
-          <h3 className="section-label mb-4">Backend Traffic Split</h3>
+        <ChartPanel
+          title="Backend Traffic Split"
+          description="Share of origin requests per backend in the last 10 seconds."
+        >
           <PieChartCard data={pieData} />
-        </section>
-        <section className="card">
-          <h3 className="section-label mb-4">Request Timeline</h3>
+        </ChartPanel>
+        <ChartPanel title="Request Timeline" description="Requests per second over the last minute.">
           <TimeSeriesChart
             data={history}
-            lines={[{ key: 'rps', name: 'Requests/s', color: '#0a0a0a' }]}
+            lines={[{ key: 'rps', name: 'Requests/s', color: '#09090b' }]}
           />
-        </section>
+        </ChartPanel>
       </div>
 
       <section className="card overflow-x-auto">
-        <h3 className="section-label mb-4">Per-Backend Utilization</h3>
+        <p className="section-heading mb-1">Per-Backend Utilization</p>
+        <p className="section-desc mb-5">Live connection and request counts per origin server.</p>
         <table className="w-full text-sm font-mono">
           <thead>
-            <tr className="text-edge-muted border-b border-edge-border">
-              <th className="text-left py-2">Backend</th>
-              <th className="text-right py-2">Requests</th>
-              <th className="text-right py-2">%</th>
-              <th className="text-right py-2">Connections</th>
-              <th className="text-right py-2">Status</th>
+            <tr className="table-head">
+              <th className="text-left py-3">Backend</th>
+              <th className="text-right py-3">Requests</th>
+              <th className="text-right py-3">%</th>
+              <th className="text-right py-3">Connections</th>
+              <th className="text-right py-3">Status</th>
             </tr>
           </thead>
           <tbody>
             {(m.trafficDistribution || []).map((b) => (
-              <tr key={b.id} className="border-b border-edge-border/50">
-                <td className="py-2">{b.name}</td>
-                <td className="text-right">{b.requests}</td>
-                <td className="text-right">{b.percentage}%</td>
-                <td className="text-right">{b.activeConnections}</td>
-                <td className="text-right">
-                  <span className={b.healthy ? 'text-edge-foreground' : 'text-edge-muted'}>
+              <tr key={b.id} className="table-row">
+                <td className="py-3">{b.name}</td>
+                <td className="text-right py-3">{b.requests}</td>
+                <td className="text-right py-3">{b.percentage}%</td>
+                <td className="text-right py-3">{b.activeConnections}</td>
+                <td className="text-right py-3">
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded text-xs ${
+                      b.healthy ? 'bg-neutral-100 text-edge-foreground' : 'bg-neutral-200 text-edge-muted'
+                    }`}
+                  >
                     {b.healthy ? 'UP' : 'DOWN'}
                   </span>
                 </td>

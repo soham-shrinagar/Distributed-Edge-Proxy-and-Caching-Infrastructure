@@ -4,21 +4,23 @@ module.exports = {
     './pages/**/*.{js,jsx}',
     './components/**/*.{js,jsx}',
     './charts/**/*.{js,jsx}',
+    './lib/**/*.{js,jsx}',
   ],
   theme: {
     extend: {
       colors: {
         edge: {
           bg: '#ffffff',
+          canvas: '#fafafa',
           panel: '#ffffff',
-          surface: '#f5f5f5',
-          border: '#e5e5e5',
-          foreground: '#0a0a0a',
-          muted: '#737373',
-          accent: '#0a0a0a',
-          success: '#171717',
-          warning: '#525252',
-          danger: '#262626',
+          surface: '#f4f4f5',
+          border: '#e4e4e7',
+          foreground: '#09090b',
+          muted: '#71717a',
+          accent: '#09090b',
+          success: '#18181b',
+          warning: '#52525b',
+          danger: '#3f3f46',
         },
       },
       fontFamily: {
@@ -26,7 +28,8 @@ module.exports = {
         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
-        card: '0 1px 2px rgba(0, 0, 0, 0.04)',
+        card: '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
+        lift: '0 4px 12px rgba(0, 0, 0, 0.05)',
       },
     },
   },

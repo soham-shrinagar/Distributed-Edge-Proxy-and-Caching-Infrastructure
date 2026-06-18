@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import StatCard from '../components/StatCard';
+import PageIntro, { SectionHeader } from '../components/PageIntro';
 import RateLimitViz from '../components/RateLimitViz';
 import { useMetricsContext } from '../hooks/useMetrics';
 import { fetchAdmin } from '../services/ws';
+import { PAGE_META } from '../lib/pageMeta';
 
 const ALGORITHMS = ['token-bucket', 'fixed-window', 'sliding-window'];
 
@@ -27,6 +29,7 @@ export default function RateLimitPage() {
   const { metrics, connected } = useMetricsContext();
   const rl = metrics?.rateLimit || {};
   const [algo, setAlgo] = useState('token-bucket');
+  const meta = PAGE_META['/rate-limit'];
 
   useEffect(() => {
     if (rl.algorithm) setAlgo(rl.algorithm);
@@ -46,9 +49,9 @@ export default function RateLimitPage() {
 
   return (
     <div className="space-y-8">
-      {!connected && (
-        <div className="alert">WebSocket disconnected — metrics may be stale.</div>
-      )}
+      <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
+
+      {!connected && <div className="alert">WebSocket disconnected — metrics may be stale.</div>}
 
       {!redisOk && (
         <div className="alert">
@@ -63,15 +66,36 @@ export default function RateLimitPage() {
         algorithm={algo}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Blocked (10s)" value={metrics?.rateLimitWindow?.blocked ?? rl.limitedLast10s ?? 0} variant="danger" />
-        <StatCard title="Allowed (10s)" value={metrics?.rateLimitWindow?.allowed ?? 0} variant="success" />
-        <StatCard title="Blocked (total)" value={rl.limitedTotal ?? 0} variant="warning" />
-        <StatCard title="Cap" value={`${rl.max ?? 100}/min`} />
-      </div>
-
       <section>
-        <p className="text-sm text-edge-muted mb-3">Switch algorithm (live)</p>
+        <p className="section-label mb-4">Counters</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard
+            title="Blocked (10s)"
+            value={metrics?.rateLimitWindow?.blocked ?? rl.limitedLast10s ?? 0}
+            hint="Recent rejections"
+            variant="danger"
+          />
+          <StatCard
+            title="Allowed (10s)"
+            value={metrics?.rateLimitWindow?.allowed ?? 0}
+            hint="Passed the gate"
+            variant="success"
+          />
+          <StatCard
+            title="Blocked (total)"
+            value={rl.limitedTotal ?? 0}
+            hint="All-time 429s"
+            variant="warning"
+          />
+          <StatCard title="Cap" value={`${rl.max ?? 100}/min`} hint="Per client IP" />
+        </div>
+      </section>
+
+      <section className="card">
+        <SectionHeader
+          title="Algorithm"
+          description="Each approach counts requests differently — switch to compare behavior."
+        />
         <div className="flex flex-wrap gap-2">
           {ALGORITHMS.map((a) => (
             <button
@@ -86,12 +110,12 @@ export default function RateLimitPage() {
         </div>
       </section>
 
-      <section className="card text-sm text-edge-foreground space-y-2">
+      <section className="card space-y-2">
         <p className="card-title">{policy.title}</p>
-        <p>{policy.body}</p>
-        <p className="text-edge-muted text-xs pt-2 border-t border-edge-border">
-          Policy: <strong>{rl.max ?? 100} requests / minute / IP</strong> via Redis.
-          Over limit → <code className="font-mono text-edge-foreground">429</code> + Retry-After header.
+        <p className="text-sm text-edge-muted leading-relaxed">{policy.body}</p>
+        <p className="text-xs text-edge-muted pt-4 border-t border-edge-border">
+          Policy: <strong>{rl.max ?? 100} requests / minute / IP</strong> via Redis. Over limit →{' '}
+          <code className="font-mono text-edge-foreground">429</code> + Retry-After header.
         </p>
       </section>
     </div>

@@ -1,9 +1,11 @@
 'use strict';
 
 import { useState, useEffect } from 'react';
+import PageIntro, { SectionHeader } from '../components/PageIntro';
 import { useMetricsContext } from '../hooks/useMetrics';
 import { fetchAdmin } from '../services/ws';
 import LoadBalancerViz from '../components/LoadBalancerViz';
+import { PAGE_META } from '../lib/pageMeta';
 
 const ALGORITHMS = [
   'round-robin',
@@ -23,6 +25,7 @@ export default function BackendsPage() {
   const { metrics, connected } = useMetricsContext();
   const [algorithm, setAlgorithm] = useState('round-robin');
   const [hint, setHint] = useState('');
+  const meta = PAGE_META['/backends'];
 
   const backends = metrics?.backends || [];
   const distribution = metrics?.trafficDistribution || [];
@@ -50,6 +53,8 @@ export default function BackendsPage() {
 
   return (
     <div className="space-y-8">
+      <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
+
       {!connected && (
         <div className="alert">WebSocket disconnected — start the edge proxy and refresh.</div>
       )}
@@ -61,8 +66,11 @@ export default function BackendsPage() {
         algorithm={algorithm}
       />
 
-      <section>
-        <p className="text-sm text-edge-muted mb-3">Switch algorithm (live)</p>
+      <section className="card">
+        <SectionHeader
+          title="Load balancing algorithm"
+          description="Switch live — traffic routing updates immediately. Use Simulator to see the effect."
+        />
         <div className="flex flex-wrap gap-2">
           {ALGORITHMS.map((algo) => (
             <button
@@ -75,7 +83,9 @@ export default function BackendsPage() {
             </button>
           ))}
         </div>
-        <p className="text-xs text-edge-muted mt-3">{hint || ALGO_HINTS[algorithm]}</p>
+        <p className="text-xs text-edge-muted mt-4 pl-3 border-l-2 border-edge-border leading-relaxed">
+          {hint || ALGO_HINTS[algorithm]}
+        </p>
       </section>
     </div>
   );

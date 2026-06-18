@@ -1,5 +1,7 @@
 'use strict';
 
+import { SectionHeader, EmptyState } from './PageIntro';
+
 const COLORS = {
   'backend-a': { bar: 'bg-neutral-900', ring: 'ring-black', text: 'text-black' },
   'backend-b': { bar: 'bg-neutral-600', ring: 'ring-neutral-600', text: 'text-neutral-600' },
@@ -19,56 +21,43 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
   return (
     <div className="space-y-6">
       <section className="card">
-        <h3 className="card-title">How traffic flows</h3>
-        <p className="card-subtitle mb-6">
-          Each request hits the edge proxy first. The proxy picks a backend using{' '}
-          <span className="font-mono text-edge-foreground">{algorithm}</span>, then forwards
-          the request. Cached responses skip backends.
-        </p>
+        <SectionHeader
+          title="Request path"
+          description="Watch which hop handles each request. Highlighted node = last routed destination."
+        />
 
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-4 lg:gap-6 py-4">
-          <div className="text-center px-4 py-3 rounded-lg border border-edge-border bg-edge-surface">
-            <p className="section-label">Client</p>
-            <p className="text-lg mt-2 text-edge-foreground">◎</p>
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-3 lg:gap-5 py-6">
+          <div className="flow-node">
+            <p className="section-label">1 · Client</p>
+            <p className="text-xs text-edge-muted mt-2">Incoming HTTP</p>
           </div>
 
-          <span className="text-edge-muted text-xl hidden sm:block">→</span>
+          <span className="flow-arrow hidden sm:block">→</span>
 
-          <div
-            className={`text-center px-6 py-4 rounded-lg border-2 ${
-              last ? 'border-black bg-neutral-50' : 'border-edge-border bg-white'
-            }`}
-          >
-            <p className="section-label">Edge proxy</p>
-            <p className="font-mono text-sm mt-1 text-edge-foreground">:8080</p>
+          <div className={`flow-node px-6 ${last ? 'flow-node-active' : ''}`}>
+            <p className="section-label">2 · Edge proxy</p>
+            <p className="font-mono text-sm mt-2 text-edge-foreground">:8080</p>
+            <p className="text-[10px] text-edge-muted mt-1 font-mono">{algorithm}</p>
             {last && (
-              <p className="text-xs mt-2 text-edge-muted">
-                Last:{' '}
+              <p className="text-[11px] mt-2 text-edge-muted">
                 {last.outcome === 'cache-hit' ? 'served from cache' : `→ ${last.backendName}`}
               </p>
             )}
           </div>
 
-          <span className="text-edge-muted text-xl hidden sm:block">→</span>
+          <span className="flow-arrow hidden sm:block">→</span>
 
           <div className="flex flex-wrap justify-center gap-3">
             {backends.map((b) => {
               const c = colorFor(b.id);
               const isActive = activeId === b.id;
-              const inFlight = b.activeConnections > 0;
               const port = b.url ? new URL(b.url).port : '?';
               return (
                 <div
                   key={b.id}
-                  className={`relative text-center px-4 py-3 rounded-lg border min-w-[100px] transition-all ${
-                    isActive
-                      ? `border-black ring-1 ring-black bg-neutral-50 scale-[1.02]`
-                      : inFlight
-                        ? 'border-neutral-400 bg-neutral-50'
-                        : b.healthy
-                          ? 'border-edge-border bg-white'
-                          : 'border-neutral-400 bg-neutral-100'
-                  }`}
+                  className={`relative flow-node min-w-[108px] ${
+                    isActive ? 'flow-node-active scale-[1.02]' : ''
+                  } ${!b.healthy ? 'opacity-60' : ''}`}
                 >
                   <p className={`text-xs font-medium ${c.text}`}>{b.name}</p>
                   <p className="text-xs text-edge-muted mt-1 font-mono">:{port}</p>
@@ -88,11 +77,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
               );
             })}
             <div
-              className={`relative text-center px-4 py-3 rounded-lg border min-w-[100px] ${
-                activeId === 'cache'
-                  ? 'border-black ring-1 ring-black bg-neutral-50 scale-[1.02]'
-                  : 'border-edge-border bg-white'
-              }`}
+              className={`flow-node min-w-[108px] ${activeId === 'cache' ? 'flow-node-active scale-[1.02]' : ''}`}
             >
               <p className="text-xs font-medium text-edge-foreground">Cache</p>
               <p className="text-[10px] text-edge-muted mt-1">L1 + Redis</p>
@@ -102,17 +87,20 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
       </section>
 
       <section className="card">
-        <div className="flex justify-between items-baseline mb-4">
-          <h3 className="card-title">Traffic split (last 10s)</h3>
-          <span className="text-xs text-edge-muted font-mono">{totalReqs} origin requests</span>
-        </div>
+        <SectionHeader
+          title="Traffic split"
+          description="Origin requests in the last 10 seconds — excludes cache hits."
+          action={
+            <span className="text-xs text-edge-muted font-mono bg-neutral-50 px-2 py-1 rounded-md border border-edge-border">
+              {totalReqs} reqs
+            </span>
+          }
+        />
         {totalReqs === 0 ? (
-          <div className="rounded-lg border border-dashed border-edge-border p-8 text-center">
-            <p className="text-sm text-edge-muted">No backend traffic yet</p>
-            <p className="text-xs text-edge-muted mt-2">
-              Simulator → Load balancer demo → Start (cache bust OFF)
-            </p>
-          </div>
+          <EmptyState>
+            <p>No backend traffic yet</p>
+            <p className="text-xs mt-2">Simulator → Load balancer demo (cache bust OFF)</p>
+          </EmptyState>
         ) : (
           <>
             <div className="flex h-6 rounded-md overflow-hidden mb-4 border border-edge-border">
@@ -150,9 +138,12 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
       </section>
 
       <section className="card">
-        <h3 className="card-title mb-3">Live routing log</h3>
+        <SectionHeader
+          title="Live routing log"
+          description="Newest request at top — shows path, destination, and outcome."
+        />
         {!routingLog?.length ? (
-          <p className="text-sm text-edge-muted">Waiting for requests through the proxy…</p>
+          <EmptyState>Waiting for requests through the proxy…</EmptyState>
         ) : (
           <div className="space-y-1 max-h-64 overflow-y-auto font-mono text-xs">
             {routingLog.map((e, i) => (

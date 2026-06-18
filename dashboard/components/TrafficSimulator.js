@@ -1,7 +1,9 @@
 'use strict';
 
 import { useState, useRef, useCallback } from 'react';
+import PageIntro, { SectionHeader, EmptyState } from './PageIntro';
 import { sendProxyRequest, ENDPOINTS } from '../services/proxy';
+import { PAGE_META } from '../lib/pageMeta';
 
 const PRESETS = [
   { label: 'Light', intervalMs: 500 },
@@ -189,12 +191,17 @@ export default function TrafficSimulator() {
   };
 
   const avgLatency = stats.sent > 0 ? Math.round(stats.totalLatency / stats.sent) : 0;
+  const meta = PAGE_META['/simulator'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
+
       <section className="card">
-        <h3 className="card-title">Scenario presets</h3>
-        <p className="card-subtitle mb-4">One-click demos for Backends, Rate Limit, Cache, and failover.</p>
+        <SectionHeader
+          title="Scenario presets"
+          description="Guided demos — each preset configures traffic for a specific page."
+        />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {SCENARIOS.map((s) => (
             <button
@@ -202,10 +209,10 @@ export default function TrafficSimulator() {
               type="button"
               disabled={running}
               onClick={() => applyScenario(s)}
-              className={`text-left p-4 rounded-lg border transition-colors disabled:opacity-40 ${
+              className={`text-left p-4 rounded-xl border transition-all disabled:opacity-40 ${
                 activeScenario === s.id
-                  ? 'border-black bg-neutral-50'
-                  : 'border-edge-border hover:border-neutral-400 hover:bg-neutral-50'
+                  ? 'border-edge-foreground bg-neutral-50 shadow-card'
+                  : 'border-edge-border hover:border-neutral-300 hover:shadow-card bg-white'
               }`}
             >
               <p className="text-sm font-medium text-edge-foreground">{s.name}</p>
@@ -221,8 +228,10 @@ export default function TrafficSimulator() {
       </section>
 
       <section className="card">
-        <h3 className="card-title">Manual controls</h3>
-        <p className="card-subtitle mb-6">Real HTTP through the edge proxy. Metrics update via WebSocket.</p>
+        <SectionHeader
+          title="Manual controls"
+          description="Fine-tune endpoints, speed, and error injection."
+        />
 
         <div className="space-y-5">
           <div>
@@ -343,13 +352,16 @@ export default function TrafficSimulator() {
       </div>
 
       {running && (
-        <p className="text-sm text-edge-muted">Sending traffic{chaos ? ' (chaos on)' : ''}…</p>
+        <div className="flex items-center gap-2 text-sm text-edge-muted">
+          <span className="w-1.5 h-1.5 rounded-full bg-edge-foreground animate-pulse" />
+          Sending traffic{chaos ? ' with chaos mode' : ''}…
+        </div>
       )}
 
       <section className="card">
-        <h3 className="section-label mb-3">Recent requests</h3>
+        <SectionHeader title="Recent requests" description="Last 20 responses from the proxy." />
         {recent.length === 0 ? (
-          <p className="text-sm text-edge-muted">Pick a scenario or press Start</p>
+          <EmptyState>Pick a scenario or press Start</EmptyState>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
@@ -385,7 +397,7 @@ export default function TrafficSimulator() {
 
 function MiniStat({ label, value, muted }) {
   return (
-    <div className="card p-4 text-center">
+    <div className="card p-4 text-center border-t-2 border-t-edge-foreground/20">
       <p className="section-label">{label}</p>
       <p className={`text-xl font-semibold font-mono mt-1 ${muted ? 'text-edge-muted' : 'text-edge-foreground'}`}>
         {value}
