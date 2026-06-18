@@ -8,14 +8,22 @@ let client = null;
 
 function getRedis() {
   if (!client) {
-    client = new Redis({
-      host: config.redis.host,
-      port: config.redis.port,
-      password: config.redis.password,
-      db: config.redis.db,
+    const opts = {
       lazyConnect: true,
       maxRetriesPerRequest: 1,
-    });
+    };
+    if (config.redis.url) {
+      client = new Redis(config.redis.url, opts);
+    } else {
+      client = new Redis({
+        host: config.redis.host,
+        port: config.redis.port,
+        password: config.redis.password,
+        db: config.redis.db,
+        ...(config.redis.tls ? { tls: {} } : {}),
+        ...opts,
+      });
+    }
     client.on('connect', () => logger.info('Redis connected'));
     client.on('error', (err) => logger.warn({ err: err.message }, 'Redis error'));
   }

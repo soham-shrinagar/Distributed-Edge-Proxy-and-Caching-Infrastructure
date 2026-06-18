@@ -5,6 +5,8 @@
 Production-grade traffic orchestration platform inspired by CDN edge systems (Cloudflare, Fastly, Nginx). Routes all client traffic through an intelligent edge layer with caching, load balancing, rate limiting, failover, compression, and real-time observability.
 
 > **Run & simulate:** See **[RUNBOOK.md](./RUNBOOK.md)** for step-by-step startup, verification, and all simulation scenarios (cache, LB, failover, rate limits, stress tests).
+>
+> **Deploy live:** See **[DEPLOY.md](./DEPLOY.md)** for Vercel + Render deployment.
 
 ---
 

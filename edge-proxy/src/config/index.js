@@ -7,15 +7,17 @@ const path = require('path');
 const config = {
   env: process.env.NODE_ENV || 'development',
   proxy: {
-    port: Number(process.env.PROXY_PORT) || 8080,
+    port: Number(process.env.PROXY_PORT || process.env.PORT) || 8080,
     host: process.env.PROXY_HOST || '0.0.0.0',
     name: 'EdgeFlow-Proxy',
   },
   redis: {
+    url: process.env.REDIS_URL || null,
     host: process.env.REDIS_HOST || '127.0.0.1',
     port: Number(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || undefined,
     db: Number(process.env.REDIS_DB) || 0,
+    tls: process.env.REDIS_TLS === 'true',
   },
   postgres: {
     connectionString: process.env.DATABASE_URL || null,

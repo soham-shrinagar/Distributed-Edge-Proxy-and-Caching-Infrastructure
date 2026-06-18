@@ -13,6 +13,7 @@
   "scripts": {
     "install:all": "npm install",
     "start": "node scripts/start-all.js",
+    "start:production": "node scripts/start-production.js",
     "stop": "node scripts/stop-all.js",
     "proxy": "npm run start --workspace=edge-proxy",
     "backends": "node scripts/start-backends.js",
