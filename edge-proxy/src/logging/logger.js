@@ -3,12 +3,13 @@
 const pino = require('pino');
 const config = require('../config');
 
+const isDev = config.env === 'development';
+
 const logger = pino({
-  level: config.logging.level,
-  transport:
-    config.env === 'development'
-      ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'SYS:standard' } }
-      : undefined,
+  level: isDev ? config.logging.level : 'silent',
+  transport: isDev
+    ? { target: 'pino-pretty', options: { colorize: true, translateTime: 'SYS:standard' } }
+    : undefined,
   base: { service: 'edge-proxy' },
 });
 

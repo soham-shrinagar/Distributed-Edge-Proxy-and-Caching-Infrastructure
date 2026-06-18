@@ -22,18 +22,22 @@ function createBackendServer({ port, serverId, serverName, loggerConfig = {} }) 
   let errorCount = 0;
   const startTime = Date.now();
 
+  const isDev = Boolean(loggerConfig.pretty);
+
   const app = Fastify({
-    logger: {
-      level: 'info',
-      transport: loggerConfig.pretty
-        ? { target: 'pino-pretty', options: { colorize: true } }
-        : undefined,
-    },
+    logger: isDev
+      ? {
+          level: 'info',
+          transport: { target: 'pino-pretty', options: { colorize: true } },
+        }
+      : false,
   });
 
   app.addHook('onRequest', async (request) => {
     requestCount += 1;
-    request.log.info({ method: request.method, url: request.url }, 'incoming request');
+    if (isDev) {
+      request.log.info({ method: request.method, url: request.url }, 'incoming request');
+    }
   });
 
   app.get('/health', async () => {
@@ -109,7 +113,9 @@ function createBackendServer({ port, serverId, serverName, loggerConfig = {} }) 
 
   async function start() {
     await app.listen({ port, host: '127.0.0.1' });
-    app.log.info(`${serverName} listening on http://127.0.0.1:${port}`);
+    if (isDev) {
+      app.log.info(`${serverName} listening on http://127.0.0.1:${port}`);
+    }
     return app;
   }
 

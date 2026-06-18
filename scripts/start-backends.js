@@ -10,6 +10,9 @@ const servers = [
   { name: 'Backend C', cwd: path.join(root, 'backend-servers/server3'), port: 3003 },
 ];
 
+const isDev = process.env.NODE_ENV !== 'production';
+const log = isDev ? (...args) => console.log(...args) : () => {};
+
 const children = [];
 
 for (const s of servers) {
@@ -19,10 +22,10 @@ for (const s of servers) {
     stdio: 'inherit',
   });
   child.on('exit', (code) => {
-    console.log(`[${s.name}] exited with code ${code}`);
+    if (isDev) console.log(`[${s.name}] exited with code ${code}`);
   });
   children.push(child);
-  console.log(`Started ${s.name} on port ${s.port}`);
+  log(`Started ${s.name} on port ${s.port}`);
 }
 
 process.on('SIGINT', () => {

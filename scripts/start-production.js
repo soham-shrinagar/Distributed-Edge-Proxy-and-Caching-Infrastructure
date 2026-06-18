@@ -3,6 +3,9 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
+const isDev = process.env.NODE_ENV !== 'production';
+const log = isDev ? (...args) => console.log(...args) : () => {};
+
 const root = path.join(__dirname, '..');
 const children = [];
 
@@ -15,15 +18,15 @@ function run(name, cmd, args, cwd) {
   });
   child.on('error', (err) => console.error(`[${name}]`, err.message));
   children.push({ name, child });
-  console.log(`▶ ${name} starting`);
+  log(`▶ ${name} starting`);
   return child;
 }
 
-console.log('╔══════════════════════════════════════════════════╗');
-console.log('║     EdgeFlow — Production (Render / Railway)     ║');
-console.log('╚══════════════════════════════════════════════════╝\n');
-console.log(`  Proxy port: ${process.env.PORT || process.env.PROXY_PORT || 8080}`);
-console.log('  Backends:   :3001, :3002, :3003\n');
+log('╔══════════════════════════════════════════════════╗');
+log('║     EdgeFlow — Production (Render / Railway)     ║');
+log('╚══════════════════════════════════════════════════╝\n');
+log(`  Proxy port: ${process.env.PORT || process.env.PROXY_PORT || 8080}`);
+log('  Backends:   :3001, :3002, :3003\n');
 
 run('Backends', 'node', [path.join(root, 'scripts/start-backends.js')], root);
 
@@ -32,11 +35,11 @@ setTimeout(() => {
 }, 2500);
 
 function shutdown(signal) {
-  console.log(`\n${signal} — shutting down EdgeFlow...`);
+  log(`\n${signal} — shutting down EdgeFlow...`);
   for (const { child, name } of children) {
     try {
       child.kill('SIGTERM');
-      console.log(`  stopped ${name}`);
+      log(`  stopped ${name}`);
     } catch {
       /* ignore */
     }
