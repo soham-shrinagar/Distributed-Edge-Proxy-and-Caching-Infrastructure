@@ -16,21 +16,19 @@ export default function ErrorsPage() {
     <div className="space-y-8">
       <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Error Rate"
           value={((m.errorRate ?? 0) * 100).toFixed(2)}
           unit="%"
           hint="4xx + 5xx share"
-          variant="danger"
         />
-        <StatCard title="Retry Count" value={retry.retryCount ?? 0} hint="Automatic retries" variant="warning" />
-        <StatCard title="Failovers" value={retry.failoverCount ?? 0} hint="Switched backend" variant="warning" />
+        <StatCard title="Retry Count" value={retry.retryCount ?? 0} hint="Automatic retries" />
+        <StatCard title="Failovers" value={retry.failoverCount ?? 0} hint="Switched backend" />
         <StatCard
           title="Unhealthy Backends"
           value={m.unhealthyBackends ?? 0}
           hint="Removed from pool"
-          variant={m.unhealthyBackends > 0 ? 'danger' : 'success'}
         />
       </div>
 
@@ -51,7 +49,7 @@ export default function ErrorsPage() {
             <li className="empty-state">No failover events yet — try Error & failover in Simulator</li>
           )}
           {(retry.recentFailovers || []).slice(0, 15).map((ev, i) => (
-            <li key={i} className="flex justify-between table-row py-3 px-1">
+            <li key={i} className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-4 table-row py-3 px-1">
               <span className="text-edge-foreground">
                 {ev.failedServer} → {ev.reroutedServer}
               </span>

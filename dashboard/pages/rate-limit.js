@@ -68,24 +68,21 @@ export default function RateLimitPage() {
 
       <section>
         <p className="section-label mb-4">Counters</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
             title="Blocked (10s)"
             value={metrics?.rateLimitWindow?.blocked ?? rl.limitedLast10s ?? 0}
             hint="Recent rejections"
-            variant="danger"
           />
           <StatCard
             title="Allowed (10s)"
             value={metrics?.rateLimitWindow?.allowed ?? 0}
             hint="Passed the gate"
-            variant="success"
           />
           <StatCard
             title="Blocked (total)"
             value={rl.limitedTotal ?? 0}
             hint="All-time 429s"
-            variant="warning"
           />
           <StatCard title="Cap" value={`${rl.max ?? 100}/min`} hint="Per client IP" />
         </div>

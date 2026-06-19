@@ -28,15 +28,14 @@ export default function CachePage() {
     <div className="space-y-8">
       <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Combined Hit Ratio"
           value={((cache.combined?.hitRatio ?? 0) * 100).toFixed(1)}
           unit="%"
           hint="Higher = less origin load"
-          variant="success"
         />
-        <StatCard title="L1 Hits" value={l1.hits ?? 0} hint="In-memory LRU" variant="accent" />
+        <StatCard title="L1 Hits" value={l1.hits ?? 0} hint="In-memory LRU" />
         <StatCard title="L2 Hits" value={l2.hits ?? 0} hint="Redis distributed" />
         <StatCard title="L1 Size" value={`${l1.size ?? 0}/${l1.maxSize ?? 500}`} hint="Entries used" />
       </div>

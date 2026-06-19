@@ -24,12 +24,11 @@ export default function OverviewPage() {
 
       <section>
         <p className="section-label mb-4">Real-time</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
             title="Requests / sec"
             value={(m.requestsPerSecond ?? 0).toFixed(1)}
             hint="Rolling 10s average"
-            variant="accent"
           />
           <StatCard
             title="Avg Latency"
@@ -42,33 +41,29 @@ export default function OverviewPage() {
             value={((m.cacheHitRatio ?? 0) * 100).toFixed(1)}
             unit="%"
             hint="L1 + L2 combined"
-            variant="success"
           />
           <StatCard
             title="Active Backends"
             value={`${m.healthyBackends ?? 0}/${m.backends?.length ?? 3}`}
             hint="Healthy / total pool"
-            variant={m.unhealthyBackends > 0 ? 'warning' : 'success'}
           />
         </div>
       </section>
 
       <section>
         <p className="section-label mb-4">Cumulative</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard title="Total Requests" value={m.totalRequests ?? 0} hint="Since proxy start" />
           <StatCard title="Active Connections" value={m.activeConnections ?? 0} hint="In-flight now" />
           <StatCard
             title="Failovers"
             value={m.retry?.failoverCount ?? 0}
             hint="Rerouted after failure"
-            variant="warning"
           />
           <StatCard
             title="Rate Limited"
             value={m.rateLimit?.limitedTotal ?? 0}
             hint="429 responses sent"
-            variant="danger"
           />
         </div>
       </section>

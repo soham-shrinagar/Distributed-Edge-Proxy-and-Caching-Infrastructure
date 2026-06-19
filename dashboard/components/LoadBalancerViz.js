@@ -26,15 +26,16 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
           description="Watch which hop handles each request. Highlighted node = last routed destination."
         />
 
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-3 lg:gap-5 py-6">
-          <div className="flow-node">
+        <div className="flex flex-col items-stretch sm:items-center lg:flex-row justify-center gap-2 sm:gap-3 lg:gap-5 py-4 sm:py-6">
+          <div className="flow-node max-w-xs sm:max-w-none mx-auto sm:mx-0">
             <p className="section-label">1 · Client</p>
             <p className="text-xs text-edge-muted mt-2">Incoming HTTP</p>
           </div>
 
-          <span className="flow-arrow hidden sm:block">→</span>
+          <span className="flow-arrow text-center sm:hidden">↓</span>
+          <span className="flow-arrow hidden sm:block lg:block">→</span>
 
-          <div className={`flow-node px-6 ${last ? 'flow-node-active' : ''}`}>
+          <div className={`flow-node px-4 sm:px-6 max-w-xs sm:max-w-none mx-auto sm:mx-0 ${last ? 'flow-node-active' : ''}`}>
             <p className="section-label">2 · Edge proxy</p>
             <p className="font-mono text-sm mt-2 text-edge-foreground">:8080</p>
             <p className="text-[10px] text-edge-muted mt-1 font-mono">{algorithm}</p>
@@ -45,9 +46,10 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
             )}
           </div>
 
+          <span className="flow-arrow text-center sm:hidden">↓</span>
           <span className="flow-arrow hidden sm:block">→</span>
 
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 w-full sm:w-auto">
             {backends.map((b) => {
               const c = colorFor(b.id);
               const isActive = activeId === b.id;
@@ -55,8 +57,8 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
               return (
                 <div
                   key={b.id}
-                  className={`relative flow-node min-w-[108px] ${
-                    isActive ? 'flow-node-active scale-[1.02]' : ''
+                  className={`relative flow-node min-w-0 sm:min-w-[108px] ${
+                    isActive ? 'flow-node-active' : ''
                   } ${!b.healthy ? 'opacity-60' : ''}`}
                 >
                   <p className={`text-xs font-medium ${c.text}`}>{b.name}</p>
@@ -77,7 +79,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
               );
             })}
             <div
-              className={`flow-node min-w-[108px] ${activeId === 'cache' ? 'flow-node-active scale-[1.02]' : ''}`}
+              className={`flow-node min-w-0 sm:min-w-[108px] ${activeId === 'cache' ? 'flow-node-active' : ''}`}
             >
               <p className="text-xs font-medium text-edge-foreground">Cache</p>
               <p className="text-[10px] text-edge-muted mt-1">L1 + Redis</p>

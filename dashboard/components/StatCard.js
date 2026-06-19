@@ -1,18 +1,10 @@
 'use strict';
 
-export default function StatCard({ title, value, unit, hint, variant = 'default' }) {
-  const accents = {
-    default: 'border-t-edge-foreground',
-    success: 'border-t-edge-foreground',
-    warning: 'border-t-neutral-400',
-    danger: 'border-t-neutral-400',
-    accent: 'border-t-edge-foreground',
-  };
-
+export default function StatCard({ title, value, unit, hint }) {
   return (
-    <div className={`card border-t-2 ${accents[variant] || accents.default}`}>
+    <div className="card">
       <p className="section-label">{title}</p>
-      <p className="text-2xl font-semibold mt-2 font-mono tracking-tight text-edge-foreground">
+      <p className="text-xl sm:text-2xl font-semibold mt-1.5 font-mono tracking-tight text-edge-foreground">
         {value}
         {unit && <span className="text-sm font-normal text-edge-muted ml-1">{unit}</span>}
       </p>

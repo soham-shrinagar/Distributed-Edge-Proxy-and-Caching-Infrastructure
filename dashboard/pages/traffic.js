@@ -24,12 +24,11 @@ export default function TrafficPage() {
     <div className="space-y-8">
       <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Req/s"
           value={(m.requestsPerSecond ?? 0).toFixed(1)}
           hint="Current throughput"
-          variant="accent"
         />
         <StatCard title="Total Requests" value={m.totalRequests ?? 0} hint="Lifetime count" />
         <StatCard

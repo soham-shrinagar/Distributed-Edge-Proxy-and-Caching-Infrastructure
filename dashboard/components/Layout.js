@@ -1,31 +1,63 @@
 'use strict';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import EdgeFlowLogo from './EdgeFlowLogo';
 import { NAV_GROUPS, PAGE_META } from '../lib/pageMeta';
+
+function MenuIcon({ open }) {
+  if (open) {
+    return (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+        <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 export default function Layout({ children, connected }) {
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
   const meta = PAGE_META[router.pathname] || { title: 'Dashboard', description: '' };
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [router.pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
   return (
-    <div className="min-h-screen flex bg-edge-canvas">
-      <aside className="w-60 border-r border-edge-border flex flex-col shrink-0 bg-white">
-        <div className="px-5 py-6 border-b border-edge-border">
-          <div className="flex items-center gap-2.5">
-            <span className="logo-mark">EF</span>
-            <div>
-              <h1 className="text-sm font-semibold tracking-tight text-edge-foreground">EdgeFlow</h1>
-              <p className="text-[11px] text-edge-muted">Edge proxy control plane</p>
-            </div>
-          </div>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white">
+      {menuOpen && (
+        <button
+          type="button"
+          className="mobile-overlay"
+          aria-label="Close menu"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
+      <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
+        <div className="px-4 py-5 border-b border-edge-border">
+          <EdgeFlowLogo />
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+        <nav className="flex-1 px-2 py-4 space-y-5 overflow-y-auto">
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
               <p className="nav-group-label">{group.label}</p>
-              <div className="space-y-0.5 mt-1.5">
+              <div className="space-y-0.5 mt-1">
                 {group.items.map((item) => {
                   const active = router.pathname === item.href;
                   return (
@@ -33,6 +65,7 @@ export default function Layout({ children, connected }) {
                       key={item.href}
                       href={item.href}
                       className={`nav-link ${active ? 'nav-link-active' : ''}`}
+                      onClick={() => setMenuOpen(false)}
                     >
                       {item.label}
                     </Link>
@@ -43,34 +76,55 @@ export default function Layout({ children, connected }) {
           ))}
         </nav>
 
-        <div className="px-4 py-4 border-t border-edge-border">
+        <div className="px-3 py-4 border-t border-edge-border">
           <div className={`status-pill ${connected ? 'status-live' : 'status-off'}`}>
             <span className="status-dot" />
-            {connected ? 'Live stream' : 'Disconnected'}
+            {connected ? 'Live' : 'Offline'}
           </div>
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">
-        <header className="sticky top-0 z-10 bg-edge-canvas/90 backdrop-blur border-b border-edge-border px-8 py-4">
-          <div className="flex items-center justify-between max-w-6xl">
-            <div>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-edge-muted">
-                {meta.title}
-              </p>
-              {meta.description && (
-                <p className="text-xs text-edge-muted mt-0.5 max-w-xl hidden sm:block line-clamp-1">
-                  {meta.description}
-                </p>
-              )}
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="sticky top-0 z-30 bg-white border-b border-edge-border">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                className="lg:hidden p-1.5 -ml-1.5 rounded-md text-edge-foreground hover:bg-neutral-50"
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                onClick={() => setMenuOpen((v) => !v)}
+              >
+                <MenuIcon open={menuOpen} />
+              </button>
+              <div className="lg:hidden">
+                <EdgeFlowLogo compact />
+              </div>
+              <div className="hidden lg:block min-w-0">
+                <h2 className="text-sm font-medium text-edge-foreground truncate">{meta.title}</h2>
+                {meta.description && (
+                  <p className="text-xs text-edge-muted mt-0.5 truncate max-w-xl">{meta.description}</p>
+                )}
+              </div>
             </div>
-            <span className="text-[11px] font-mono text-edge-muted bg-white border border-edge-border px-2.5 py-1 rounded-md">
-              edge proxy
-            </span>
+            <div className={`status-pill shrink-0 ${connected ? 'status-live' : 'status-off'}`}>
+              <span className="status-dot" />
+              <span className="hidden sm:inline">{connected ? 'Live' : 'Offline'}</span>
+            </div>
+          </div>
+          <div className="lg:hidden px-4 pb-3 sm:px-6 border-t border-edge-border/60 pt-3">
+            <h2 className="text-sm font-medium text-edge-foreground">{meta.title}</h2>
+            {meta.description && (
+              <p className="text-xs text-edge-muted mt-0.5 leading-relaxed">{meta.description}</p>
+            )}
           </div>
         </header>
-        <div className="p-8 max-w-6xl">{children}</div>
-      </main>
+
+        <main className="flex-1 overflow-auto">
+          <div className="px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 max-w-6xl w-full">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

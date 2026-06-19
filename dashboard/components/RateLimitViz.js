@@ -24,7 +24,7 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) 
         />
 
         <div className="relative mx-auto max-w-lg">
-          <div className="flex items-stretch gap-px h-24 rounded-xl overflow-hidden border border-edge-border shadow-card">
+          <div className="flex items-stretch gap-px h-24 rounded-lg overflow-hidden border border-edge-border">
             <div
               className="flex-1 bg-neutral-50 flex flex-col items-center justify-center"
               style={{ flex: Math.max(win.allowedPct, 5) }}

@@ -32,11 +32,12 @@ export default function LogsPage() {
       <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
 
       <section className="card overflow-hidden p-0">
-        <div className="px-6 py-4 border-b border-edge-border">
+        <div className="px-4 sm:px-6 py-4 border-b border-edge-border">
           <p className="section-heading">Request log</p>
           <p className="section-desc mt-1">Refreshes every 5 seconds from PostgreSQL.</p>
         </div>
-        <table className="w-full text-xs font-mono">
+        <div className="overflow-x-auto">
+        <table className="w-full text-xs font-mono min-w-[640px]">
           <thead className="bg-neutral-50">
             <tr className="table-head">
               <th className="text-left p-3">Time</th>
@@ -91,6 +92,7 @@ export default function LogsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </section>
     </div>
   );

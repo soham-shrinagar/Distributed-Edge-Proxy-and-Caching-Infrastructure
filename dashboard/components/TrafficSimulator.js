@@ -209,10 +209,10 @@ export default function TrafficSimulator() {
               type="button"
               disabled={running}
               onClick={() => applyScenario(s)}
-              className={`text-left p-4 rounded-xl border transition-all disabled:opacity-40 ${
+              className={`text-left p-4 rounded-lg border transition-colors disabled:opacity-40 ${
                 activeScenario === s.id
-                  ? 'border-edge-foreground bg-neutral-50 shadow-card'
-                  : 'border-edge-border hover:border-neutral-300 hover:shadow-card bg-white'
+                  ? 'border-edge-foreground bg-neutral-50'
+                  : 'border-edge-border hover:border-neutral-300 bg-white'
               }`}
             >
               <p className="text-sm font-medium text-edge-foreground">{s.name}</p>
@@ -340,7 +340,7 @@ export default function TrafficSimulator() {
         </div>
       </section>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
         <MiniStat label="Sent" value={stats.sent} />
         <MiniStat label="OK" value={stats.ok} />
         <MiniStat label="Errors" value={stats.errors} muted />
@@ -397,7 +397,7 @@ export default function TrafficSimulator() {
 
 function MiniStat({ label, value, muted }) {
   return (
-    <div className="card p-4 text-center border-t-2 border-t-edge-foreground/20">
+    <div className="card p-3 sm:p-4 text-center">
       <p className="section-label">{label}</p>
       <p className={`text-xl font-semibold font-mono mt-1 ${muted ? 'text-edge-muted' : 'text-edge-foreground'}`}>
         {value}

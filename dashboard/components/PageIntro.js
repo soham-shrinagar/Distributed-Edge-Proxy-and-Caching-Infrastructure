@@ -12,12 +12,12 @@ export default function PageIntro({ title, description, tip }) {
 
 export function SectionHeader({ title, description, action }) {
   return (
-    <div className="flex items-start justify-between gap-4 mb-5">
-      <div>
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4 sm:mb-5">
+      <div className="min-w-0">
         <h2 className="section-heading">{title}</h2>
         {description && <p className="section-desc">{description}</p>}
       </div>
-      {action}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

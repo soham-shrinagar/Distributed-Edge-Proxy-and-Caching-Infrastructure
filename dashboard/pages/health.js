@@ -16,20 +16,18 @@ export default function HealthPage() {
     <div className="space-y-8">
       <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Healthy Backends" value={m.healthyBackends ?? 0} hint="Receiving traffic" variant="success" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard title="Healthy Backends" value={m.healthyBackends ?? 0} hint="Receiving traffic" />
         <StatCard
           title="Unhealthy"
           value={m.unhealthyBackends ?? 0}
           hint="Excluded from LB"
-          variant={m.unhealthyBackends > 0 ? 'danger' : 'success'}
         />
         <StatCard title="Heap Used" value={`${((mem.heapUsed || 0) / 1048576).toFixed(1)} MB`} hint="Proxy memory" />
         <StatCard
           title="Redis"
           value={m.redis?.connected ? 'Connected' : 'Offline'}
           hint="L2 cache + rate limits"
-          variant={m.redis?.connected ? 'success' : 'warning'}
         />
       </div>
 
@@ -41,16 +39,16 @@ export default function HealthPage() {
             <li className="empty-state">No state changes yet — health checks run every 5s</li>
           )}
           {events.map((ev, i) => (
-            <li key={i} className="flex gap-4 table-row py-3 px-1">
+            <li key={i} className="flex flex-col sm:flex-row sm:gap-4 table-row py-3 px-1">
               <span
-                className={`text-xs font-semibold uppercase w-20 shrink-0 ${
+                className={`text-xs font-medium w-20 shrink-0 ${
                   ev.type === 'recovery' ? 'text-edge-foreground' : 'text-edge-muted'
                 }`}
               >
                 {ev.type}
               </span>
               <span className="text-edge-foreground">{ev.backend}</span>
-              <span className="text-edge-muted ml-auto text-xs">
+              <span className="text-edge-muted sm:ml-auto text-xs">
                 {new Date(ev.timestamp).toLocaleString()}
               </span>
             </li>
