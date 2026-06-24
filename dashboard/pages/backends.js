@@ -1,11 +1,11 @@
 'use strict';
 
 import { useState, useEffect } from 'react';
-import PageIntro, { SectionHeader } from '../components/PageIntro';
+import PageIntro, { SectionHeader, OutcomeBanner } from '../components/PageIntro';
 import { useMetricsContext } from '../hooks/useMetrics';
 import { fetchAdmin } from '../services/ws';
 import LoadBalancerViz from '../components/LoadBalancerViz';
-import { PAGE_META } from '../lib/pageMeta';
+import { PAGE_META, LB_ALGORITHMS, CONNECTION_STATUS } from '../lib/interpret';
 
 const ALGORITHMS = [
   'round-robin',
@@ -14,22 +14,15 @@ const ALGORITHMS = [
   'ip-hash',
 ];
 
-const ALGO_HINTS = {
-  'round-robin': 'Equal rotation — traffic splits ~33% each over time.',
-  'weighted-round-robin': 'Backend A (weight 3) gets ~50%, B ~33%, C ~17%.',
-  'least-connections': 'Sends to the server with fewest in-flight requests.',
-  'ip-hash': 'Same client IP always hits the same backend (~100% to one server).',
-};
-
 export default function BackendsPage() {
   const { metrics, connected } = useMetricsContext();
   const [algorithm, setAlgorithm] = useState('round-robin');
-  const [hint, setHint] = useState('');
   const meta = PAGE_META['/backends'];
 
   const backends = metrics?.backends || [];
   const distribution = metrics?.trafficDistribution || [];
   const routingLog = metrics?.routingLog || [];
+  const activeAlgo = LB_ALGORITHMS[algorithm] || LB_ALGORITHMS['round-robin'];
 
   useEffect(() => {
     if (metrics?.loadBalancer?.algorithm) {
@@ -39,13 +32,12 @@ export default function BackendsPage() {
 
   async function switchAlgorithm(algo) {
     try {
-      const res = await fetchAdmin('load-balancer', {
+      await fetchAdmin('load-balancer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ algorithm: algo }),
       });
       setAlgorithm(algo);
-      setHint(res.hint || ALGO_HINTS[algo] || '');
     } catch (err) {
       console.error(err);
     }
@@ -53,10 +45,18 @@ export default function BackendsPage() {
 
   return (
     <div className="space-y-8">
-      <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
+      <PageIntro
+        title={meta.title}
+        problem={meta.problem}
+        description={meta.description}
+        workflow={meta.workflow}
+        tip={meta.tip}
+      />
 
       {!connected && (
-        <div className="alert">WebSocket disconnected — start the edge proxy and refresh.</div>
+        <OutcomeBanner title={CONNECTION_STATUS.disconnected.label}>
+          {CONNECTION_STATUS.disconnected.detail} Routing visuals will update once metrics stream resumes.
+        </OutcomeBanner>
       )}
 
       <LoadBalancerViz
@@ -64,28 +64,40 @@ export default function BackendsPage() {
         distribution={distribution}
         routingLog={routingLog}
         algorithm={algorithm}
+        algorithmLabel={activeAlgo.label}
       />
 
       <section className="card">
         <SectionHeader
           title="Load balancing algorithm"
-          description="Switch live — traffic routing updates immediately. Use Simulator to see the effect."
+          description="Click an algorithm to switch live. New requests immediately follow the new rule — no restart needed."
         />
         <div className="flex flex-wrap gap-2">
-          {ALGORITHMS.map((algo) => (
-            <button
-              key={algo}
-              type="button"
-              onClick={() => switchAlgorithm(algo)}
-              className={algorithm === algo ? 'chip chip-active' : 'chip'}
-            >
-              {algo}
-            </button>
-          ))}
+          {ALGORITHMS.map((algo) => {
+            const info = LB_ALGORITHMS[algo];
+            return (
+              <button
+                key={algo}
+                type="button"
+                onClick={() => switchAlgorithm(algo)}
+                className={algorithm === algo ? 'chip chip-active' : 'chip'}
+                title={info?.summary}
+              >
+                {info?.label || algo}
+              </button>
+            );
+          })}
         </div>
-        <p className="text-xs text-edge-muted mt-4 pl-3 border-l-2 border-edge-border leading-relaxed">
-          {hint || ALGO_HINTS[algorithm]}
-        </p>
+        <div className="mt-4 space-y-2 text-sm leading-relaxed">
+          <p className="font-medium text-edge-foreground">{activeAlgo.label}</p>
+          <p className="text-edge-muted">{activeAlgo.summary}</p>
+          <p className="text-edge-muted">
+            <span className="text-edge-foreground">Expected result:</span> {activeAlgo.outcome}
+          </p>
+          <p className="text-xs text-edge-muted pt-2 border-t border-edge-border">
+            {activeAlgo.whenToUse}
+          </p>
+        </div>
       </section>
     </div>
   );

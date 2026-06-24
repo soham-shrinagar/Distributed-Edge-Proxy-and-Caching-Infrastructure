@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import EdgeFlowLogo from './EdgeFlowLogo';
-import { NAV_GROUPS, PAGE_META } from '../lib/pageMeta';
+import { NAV_GROUPS, PAGE_META, CONNECTION_STATUS } from '../lib/interpret';
 
 function MenuIcon({ open }) {
   if (open) {
@@ -25,6 +25,7 @@ export default function Layout({ children, connected }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const meta = PAGE_META[router.pathname] || { title: 'Dashboard', description: '' };
+  const status = connected ? CONNECTION_STATUS.connected : CONNECTION_STATUS.disconnected;
 
   useEffect(() => {
     setMenuOpen(false);
@@ -57,6 +58,9 @@ export default function Layout({ children, connected }) {
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
               <p className="nav-group-label">{group.label}</p>
+              {group.hint && (
+                <p className="px-3 text-[10px] text-edge-muted/80 mb-1 leading-snug">{group.hint}</p>
+              )}
               <div className="space-y-0.5 mt-1">
                 {group.items.map((item) => {
                   const active = router.pathname === item.href;
@@ -66,8 +70,14 @@ export default function Layout({ children, connected }) {
                       href={item.href}
                       className={`nav-link ${active ? 'nav-link-active' : ''}`}
                       onClick={() => setMenuOpen(false)}
+                      title={item.hint}
                     >
-                      {item.label}
+                      <span className="block">{item.label}</span>
+                      {item.hint && !active && (
+                        <span className="block text-[10px] text-edge-muted/70 mt-0.5 font-normal leading-snug">
+                          {item.hint}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -77,9 +87,14 @@ export default function Layout({ children, connected }) {
         </nav>
 
         <div className="px-3 py-4 border-t border-edge-border">
-          <div className={`status-pill ${connected ? 'status-live' : 'status-off'}`}>
+          <div
+            className={`status-pill ${connected ? 'status-live' : 'status-off'}`}
+            title={status.detail}
+          >
             <span className="status-dot" />
-            {connected ? 'Live' : 'Offline'}
+            <span className="leading-snug">
+              <span className="block">{status.label}</span>
+            </span>
           </div>
         </div>
       </aside>
@@ -106,9 +121,12 @@ export default function Layout({ children, connected }) {
                 )}
               </div>
             </div>
-            <div className={`status-pill shrink-0 ${connected ? 'status-live' : 'status-off'}`}>
+            <div
+              className={`status-pill shrink-0 ${connected ? 'status-live' : 'status-off'}`}
+              title={status.detail}
+            >
               <span className="status-dot" />
-              <span className="hidden sm:inline">{connected ? 'Live' : 'Offline'}</span>
+              <span className="hidden sm:inline">{status.label}</span>
             </div>
           </div>
           <div className="lg:hidden px-4 pb-3 sm:px-6 border-t border-edge-border/60 pt-3">

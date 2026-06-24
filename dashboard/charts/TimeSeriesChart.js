@@ -22,8 +22,9 @@ const CHART = {
 export default function TimeSeriesChart({ data, lines, height = 280 }) {
   if (!data?.length) {
     return (
-      <div className="h-64 flex items-center justify-center text-edge-muted text-sm">
-        Waiting for metrics stream…
+      <div className="h-64 flex flex-col items-center justify-center text-edge-muted text-sm text-center px-4">
+        <p className="font-medium text-edge-foreground">Waiting for traffic</p>
+        <p className="mt-1 text-xs">Open Simulator and send requests — this chart updates every second.</p>
       </div>
     );
   }

@@ -2,10 +2,11 @@
 
 import StatCard from '../components/StatCard';
 import PageIntro, { ChartPanel } from '../components/PageIntro';
+import { OverviewNarrative } from '../components/SystemNarrative';
 import TimeSeriesChart from '../charts/TimeSeriesChart';
 import PieChartCard from '../charts/PieChartCard';
 import { useMetricsContext } from '../hooks/useMetrics';
-import { PAGE_META } from '../lib/pageMeta';
+import { PAGE_META } from '../lib/interpret';
 
 export default function OverviewPage() {
   const { metrics, history } = useMetricsContext();
@@ -18,52 +19,72 @@ export default function OverviewPage() {
       value: b.requests || 0,
     })) || [];
 
+  const hitPct = ((m.cacheHitRatio ?? 0) * 100).toFixed(1);
+
   return (
     <div className="space-y-8">
-      <PageIntro title={meta.title} description={meta.description} tip={meta.tip} />
+      <PageIntro
+        title={meta.title}
+        problem={meta.problem}
+        description={meta.description}
+        workflow={meta.workflow}
+        tip={meta.tip}
+      />
+
+      <OverviewNarrative metrics={m} />
 
       <section>
-        <p className="section-label mb-4">Real-time</p>
+        <p className="section-label mb-1">Right now</p>
+        <p className="text-xs text-edge-muted mb-4">Values refresh every second as traffic flows through the proxy.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
             title="Requests / sec"
             value={(m.requestsPerSecond ?? 0).toFixed(1)}
-            hint="Rolling 10s average"
+            hint="How many users are being served per second — higher means more load on the edge."
           />
           <StatCard
             title="Avg Latency"
             value={(m.avgLatency ?? 0).toFixed(0)}
             unit="ms"
-            hint="End-to-end through proxy"
+            hint="Time from request to response. Lower is faster for end users."
           />
           <StatCard
             title="Cache Hit Ratio"
-            value={((m.cacheHitRatio ?? 0) * 100).toFixed(1)}
+            value={hitPct}
             unit="%"
-            hint="L1 + L2 combined"
+            hint={`${hitPct}% of requests were served from cache without contacting a backend server.`}
           />
           <StatCard
             title="Active Backends"
             value={`${m.healthyBackends ?? 0}/${m.backends?.length ?? 3}`}
-            hint="Healthy / total pool"
+            hint="Healthy servers available to receive traffic. Unhealthy ones are automatically skipped."
           />
         </div>
       </section>
 
       <section>
-        <p className="section-label mb-4">Cumulative</p>
+        <p className="section-label mb-1">Since proxy started</p>
+        <p className="text-xs text-edge-muted mb-4">Running totals — useful for spotting trends over a demo session.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard title="Total Requests" value={m.totalRequests ?? 0} hint="Since proxy start" />
-          <StatCard title="Active Connections" value={m.activeConnections ?? 0} hint="In-flight now" />
+          <StatCard
+            title="Total Requests"
+            value={m.totalRequests ?? 0}
+            hint="Every HTTP call that passed through the edge proxy."
+          />
+          <StatCard
+            title="Active Connections"
+            value={m.activeConnections ?? 0}
+            hint="Requests currently in flight — being processed right now."
+          />
           <StatCard
             title="Failovers"
             value={m.retry?.failoverCount ?? 0}
-            hint="Rerouted after failure"
+            hint="Times a failed request was automatically rerouted to another backend."
           />
           <StatCard
             title="Rate Limited"
             value={m.rateLimit?.limitedTotal ?? 0}
-            hint="429 responses sent"
+            hint="Requests blocked at the edge (HTTP 429) to protect backends from abuse."
           />
         </div>
       </section>
@@ -71,7 +92,7 @@ export default function OverviewPage() {
       <div className="grid lg:grid-cols-2 gap-6">
         <ChartPanel
           title="Throughput & Latency"
-          description="Request rate and response time over the last minute."
+          description="Left axis: how busy the proxy is. Right trend: how fast users get responses. Spikes in latency often follow traffic bursts."
         >
           <TimeSeriesChart
             data={history}
@@ -83,7 +104,7 @@ export default function OverviewPage() {
         </ChartPanel>
         <ChartPanel
           title="Traffic Distribution"
-          description="Which backend handled origin traffic in the last 10 seconds."
+          description="Which backend handled origin traffic in the last 10 seconds. Equal slices = even load balancing."
         >
           <PieChartCard data={trafficPie} />
         </ChartPanel>
@@ -91,7 +112,7 @@ export default function OverviewPage() {
 
       <ChartPanel
         title="Cache & Error Rate"
-        description="Cache efficiency vs failures — lower error line is better."
+        description="Rising cache line = more requests answered instantly. Rising error line = more failures — check Errors page for recovery details."
       >
         <TimeSeriesChart
           data={history}

@@ -2,7 +2,7 @@
 
 import { SectionHeader, EmptyState } from './PageIntro';
 
-export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) {
+export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm, algorithmLabel }) {
   const rl = rateLimit || {};
   const win = rateLimitWindow || {
     allowed: 0,
@@ -20,7 +20,7 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) 
       <section className="card">
         <SectionHeader
           title="Rate limit gate"
-          description={`Every request is checked in Redis before backends. Algorithm: ${algorithm}. Over cap → 429.`}
+          description={`Every request passes through this gate before reaching backends. Algorithm: ${algorithmLabel || algorithm}. Over the per-IP cap → HTTP 429.`}
         />
 
         <div className="relative mx-auto max-w-lg">
@@ -30,9 +30,9 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) 
               style={{ flex: Math.max(win.allowedPct, 5) }}
             >
               <span className="text-3xl font-semibold font-mono text-edge-foreground">{win.allowed}</span>
-              <span className="text-[11px] text-edge-muted mt-1 uppercase tracking-wider">Allowed</span>
+              <span className="text-[11px] text-edge-muted mt-1">Passed through</span>
             </div>
-            <div className="w-10 shrink-0 flex items-center justify-center bg-white border-x border-edge-border text-[10px] font-semibold text-edge-muted uppercase tracking-widest [writing-mode:vertical-lr] rotate-180">
+            <div className="w-10 shrink-0 flex items-center justify-center bg-white border-x border-edge-border text-[10px] font-medium text-edge-muted [writing-mode:vertical-lr] rotate-180">
               Gate
             </div>
             <div
@@ -40,7 +40,7 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) 
               style={{ flex: Math.max(win.blockedPct, win.blocked > 0 ? 5 : 1) }}
             >
               <span className="text-3xl font-semibold font-mono text-edge-foreground">{win.blocked}</span>
-              <span className="text-[11px] text-edge-muted mt-1 uppercase tracking-wider">Blocked</span>
+              <span className="text-[11px] text-edge-muted mt-1">HTTP 429 sent</span>
             </div>
           </div>
 
@@ -60,7 +60,8 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) 
 
         {!rl.redisConnected && (
           <p className="text-center text-sm text-edge-muted mt-5 px-4 py-3 rounded-lg bg-neutral-50 border border-edge-border">
-            Redis offline — gate is open (all requests pass through)
+            Redis offline — gate is open. All requests pass through; rate limiting resumes when Redis
+            reconnects.
           </p>
         )}
       </section>
@@ -68,12 +69,14 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm }) 
       <section className="card">
         <SectionHeader
           title="Recent checks"
-          description="Each incoming request is evaluated against the per-IP quota."
+          description="Each incoming request is evaluated against the per-IP quota. BLOCKED means the client got HTTP 429."
         />
         {!win.recent?.length ? (
-          <EmptyState>
-            <p>No rate-limit checks yet</p>
-            <p className="text-xs mt-2">Simulator → Rate limit flood</p>
+          <EmptyState title="No checks yet">
+            <p>
+              Run <strong>Simulator → Rate limit flood</strong> to exceed the per-IP cap. Blocked requests
+              will appear here as they are rejected at the gate.
+            </p>
           </EmptyState>
         ) : (
           <div className="space-y-1 max-h-56 overflow-y-auto font-mono text-xs">
