@@ -65,20 +65,60 @@ body {
   }
 
   .nav-group-label {
-    @apply px-3 text-[11px] font-medium text-edge-muted;
+    @apply px-3 text-[11px] font-semibold text-edge-foreground tracking-wide;
+  }
+
+  .nav-group-hint {
+    @apply px-3 text-[10px] text-edge-muted mt-0.5 mb-2 leading-snug;
+  }
+
+  .nav-group-featured {
+    @apply mx-1 px-2 pt-3 pb-2 rounded-lg bg-neutral-50 border border-edge-border/80;
+  }
+
+  .nav-group-divider {
+    @apply mx-3 my-4 border-t border-edge-border;
   }
 
   .nav-link {
-    @apply block px-3 py-2 rounded-md text-sm text-edge-muted transition-colors
-      hover:text-edge-foreground hover:bg-neutral-50;
+    @apply flex items-start gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors
+      text-edge-muted hover:text-edge-foreground hover:bg-white/80;
   }
 
   .nav-link-active {
-    @apply text-edge-foreground font-medium bg-neutral-100 hover:bg-neutral-100;
+    @apply text-edge-foreground font-medium bg-white border border-edge-border;
+  }
+
+  .nav-icon {
+    @apply mt-0.5 shrink-0 text-edge-muted/70;
+  }
+
+  .nav-icon-active {
+    @apply text-edge-foreground;
+  }
+
+  .nav-link-label {
+    @apply block text-[13px] leading-tight;
+  }
+
+  .nav-link-hint {
+    @apply block text-[10px] text-edge-muted/75 mt-0.5 font-normal leading-snug;
+  }
+
+  .nav-link-active .nav-link-hint {
+    @apply text-edge-muted;
+  }
+
+  .sidebar-brand {
+    @apply px-4 py-5 border-b border-edge-border;
+  }
+
+  .sidebar-status {
+    @apply px-3 py-4 border-t border-edge-border bg-neutral-50/50;
   }
 
   .status-pill {
-    @apply flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-md border border-edge-border;
+    @apply flex items-start gap-2.5 text-xs font-medium px-3 py-2 rounded-md border border-edge-border w-full;
   }
 
   .status-live {
@@ -167,8 +207,8 @@ body {
   }
 
   .sidebar {
-    @apply fixed lg:static inset-y-0 left-0 z-50 w-64 border-r border-edge-border
-      flex flex-col shrink-0 bg-white transition-transform duration-200 ease-out
+    @apply fixed lg:static inset-y-0 left-0 z-50 w-[15.5rem] border-r border-edge-border
+      flex flex-col shrink-0 bg-neutral-50/40 transition-transform duration-200 ease-out
       -translate-x-full lg:translate-x-0;
   }
 

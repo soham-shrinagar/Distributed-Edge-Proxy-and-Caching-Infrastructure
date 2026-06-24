@@ -124,30 +124,31 @@ export const PAGE_META = {
 
 export const NAV_GROUPS = [
   {
+    label: 'Tools',
+    hint: 'Start here — drive the system',
+    featured: true,
+    items: [
+      { href: '/simulator', label: 'Simulator', hint: 'Generate test traffic', icon: 'simulator' },
+      { href: '/logs', label: 'Logs', hint: 'Permanent request history', icon: 'logs' },
+    ],
+  },
+  {
     label: 'Monitor',
     hint: 'How is the system performing?',
     items: [
-      { href: '/', label: 'Overview', hint: 'Big-picture health and speed' },
-      { href: '/traffic', label: 'Traffic', hint: 'Volume and server share' },
-      { href: '/health', label: 'Health', hint: 'Which servers are up' },
+      { href: '/', label: 'Overview', hint: 'Big-picture health and speed', icon: 'overview' },
+      { href: '/traffic', label: 'Traffic', hint: 'Volume and server share', icon: 'traffic' },
+      { href: '/health', label: 'Health', hint: 'Which servers are up', icon: 'health' },
     ],
   },
   {
     label: 'Infrastructure',
     hint: 'How does the proxy decide?',
     items: [
-      { href: '/backends', label: 'Backends', hint: 'Load balancing & routing' },
-      { href: '/cache', label: 'Cache', hint: 'Fast repeat responses' },
-      { href: '/rate-limit', label: 'Rate Limit', hint: 'Per-IP request caps' },
-      { href: '/errors', label: 'Errors', hint: 'Retries & failover' },
-    ],
-  },
-  {
-    label: 'Tools',
-    hint: 'Drive the system',
-    items: [
-      { href: '/simulator', label: 'Simulator', hint: 'Generate test traffic' },
-      { href: '/logs', label: 'Logs', hint: 'Permanent request history' },
+      { href: '/backends', label: 'Backends', hint: 'Load balancing & routing', icon: 'backends' },
+      { href: '/cache', label: 'Cache', hint: 'Fast repeat responses', icon: 'cache' },
+      { href: '/rate-limit', label: 'Rate Limit', hint: 'Per-IP request caps', icon: 'rate-limit' },
+      { href: '/errors', label: 'Errors', hint: 'Retries & failover', icon: 'errors' },
     ],
   },
 ];

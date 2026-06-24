@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import EdgeFlowLogo from './EdgeFlowLogo';
+import NavIcon from './NavIcon';
 import { NAV_GROUPS, PAGE_META, CONNECTION_STATUS } from '../lib/interpret';
 
 function MenuIcon({ open }) {
@@ -50,50 +51,54 @@ export default function Layout({ children, connected }) {
       )}
 
       <aside className={`sidebar ${menuOpen ? 'sidebar-open' : ''}`}>
-        <div className="px-4 py-5 border-b border-edge-border">
+        <div className="sidebar-brand bg-white">
           <EdgeFlowLogo />
         </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-5 overflow-y-auto">
-          {NAV_GROUPS.map((group) => (
+        <nav className="flex-1 px-2 py-3 overflow-y-auto">
+          {NAV_GROUPS.map((group, groupIndex) => (
             <div key={group.label}>
-              <p className="nav-group-label">{group.label}</p>
-              {group.hint && (
-                <p className="px-3 text-[10px] text-edge-muted/80 mb-1 leading-snug">{group.hint}</p>
-              )}
-              <div className="space-y-0.5 mt-1">
-                {group.items.map((item) => {
-                  const active = router.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`nav-link ${active ? 'nav-link-active' : ''}`}
-                      onClick={() => setMenuOpen(false)}
-                      title={item.hint}
-                    >
-                      <span className="block">{item.label}</span>
-                      {item.hint && !active && (
-                        <span className="block text-[10px] text-edge-muted/70 mt-0.5 font-normal leading-snug">
-                          {item.hint}
+              {groupIndex > 0 && <div className="nav-group-divider" aria-hidden />}
+              <div className={group.featured ? 'nav-group-featured' : 'px-1'}>
+                <p className="nav-group-label">{group.label}</p>
+                {group.hint && <p className="nav-group-hint">{group.hint}</p>}
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = router.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`nav-link ${active ? 'nav-link-active' : ''}`}
+                        onClick={() => setMenuOpen(false)}
+                        title={item.hint}
+                        aria-current={active ? 'page' : undefined}
+                      >
+                        <NavIcon name={item.icon} active={active} />
+                        <span className="min-w-0 flex-1">
+                          <span className="nav-link-label">{item.label}</span>
+                          {item.hint && <span className="nav-link-hint">{item.hint}</span>}
                         </span>
-                      )}
-                    </Link>
-                  );
-                })}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ))}
         </nav>
 
-        <div className="px-3 py-4 border-t border-edge-border">
+        <div className="sidebar-status">
           <div
             className={`status-pill ${connected ? 'status-live' : 'status-off'}`}
             title={status.detail}
           >
             <span className="status-dot" />
-            <span className="leading-snug">
-              <span className="block">{status.label}</span>
+            <span className="leading-snug min-w-0">
+              <span className="block text-[13px]">{status.label}</span>
+              <span className="block text-[10px] text-edge-muted font-normal mt-0.5 leading-snug">
+                {connected ? 'Updates every second' : 'Start the proxy to connect'}
+              </span>
             </span>
           </div>
         </div>
