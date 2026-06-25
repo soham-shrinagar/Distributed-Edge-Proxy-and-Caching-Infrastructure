@@ -448,19 +448,14 @@ Dark-themed, production-style UI with Recharts.
 
 ---
 
-## Resume-Worthy Highlights
+## Highlights
 
-- Architected a **multi-tier edge proxy** handling routing, caching, rate limiting, and failover in a single ingress layer
-- Implemented **4 load balancing algorithms** with dynamic runtime switching and health-aware backend pools
-- Built **L1/LRU + L2/Redis** caching with compression, stale-while-revalidate, and measurable latency reduction
-- Designed **Redis-backed rate limiting** (token bucket, sliding/fixed windows) with 429 enforcement
-- Engineered **retry/failover** with exponential backoff and PostgreSQL audit trail
-- Delivered **real-time observability** via WebSocket metrics and 8-page infrastructure dashboard
-- Simulated production failure modes: random 5xx, timeouts, unhealthy recovery for realistic demos
+- A **multi-tier edge proxy** handling routing, caching, rate limiting, and failover in a single ingress layer
+- Implementation of **4 load balancing algorithms** with dynamic runtime switching and health-aware backend pools
+-**L1/LRU + L2/Redis** caching with compression, stale-while-revalidate, and measurable latency reduction
+-**Redis-backed rate limiting** (token bucket, sliding/fixed windows) with 429 enforcement
+-**Retry/failover** with exponential backoff and PostgreSQL audit trail
+-**Real-time observability** via WebSocket metrics and 8-page infrastructure dashboard
+- Simulation of production failure modes: random 5xx, timeouts, unhealthy recovery for realistic demos
+
 - Authored stress/benchmark tooling with autocannon demonstrating throughput and cache efficiency
-
----
-
-## License
-
-MIT — built for portfolio and infrastructure engineering demonstration.
