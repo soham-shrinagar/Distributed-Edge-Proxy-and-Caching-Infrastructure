@@ -45,18 +45,10 @@ export default function BackendsPage() {
 
   return (
     <div className="space-y-8">
-      <PageIntro
-        title={meta.title}
-        problem={meta.problem}
-        description={meta.description}
-        workflow={meta.workflow}
-        tip={meta.tip}
-      />
+      <PageIntro title={meta.title} description={meta.description} />
 
       {!connected && (
-        <OutcomeBanner title={CONNECTION_STATUS.disconnected.label}>
-          {CONNECTION_STATUS.disconnected.detail} Routing visuals will update once metrics stream resumes.
-        </OutcomeBanner>
+        <OutcomeBanner>{CONNECTION_STATUS.disconnected.detail}</OutcomeBanner>
       )}
 
       <LoadBalancerViz
@@ -68,10 +60,7 @@ export default function BackendsPage() {
       />
 
       <section className="card">
-        <SectionHeader
-          title="Load balancing algorithm"
-          description="Click an algorithm to switch live. New requests immediately follow the new rule — no restart needed."
-        />
+        <SectionHeader title="Load balancing algorithm" />
         <div className="flex flex-wrap gap-2">
           {ALGORITHMS.map((algo) => {
             const info = LB_ALGORITHMS[algo];
@@ -88,16 +77,7 @@ export default function BackendsPage() {
             );
           })}
         </div>
-        <div className="mt-4 space-y-2 text-sm leading-relaxed">
-          <p className="font-medium text-edge-foreground">{activeAlgo.label}</p>
-          <p className="text-edge-muted">{activeAlgo.summary}</p>
-          <p className="text-edge-muted">
-            <span className="text-edge-foreground">Expected result:</span> {activeAlgo.outcome}
-          </p>
-          <p className="text-xs text-edge-muted pt-2 border-t border-edge-border">
-            {activeAlgo.whenToUse}
-          </p>
-        </div>
+        <p className="text-sm text-edge-muted mt-4">{activeAlgo.summary}</p>
       </section>
     </div>
   );

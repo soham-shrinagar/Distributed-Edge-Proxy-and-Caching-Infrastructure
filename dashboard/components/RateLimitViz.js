@@ -18,10 +18,7 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm, al
   return (
     <div className="space-y-6">
       <section className="card">
-        <SectionHeader
-          title="Rate limit gate"
-          description={`Every request passes through this gate before reaching backends. Algorithm: ${algorithmLabel || algorithm}. Over the per-IP cap → HTTP 429.`}
-        />
+        <SectionHeader title="Rate limit gate" />
 
         <div className="relative mx-auto max-w-lg">
           <div className="flex items-stretch gap-px h-24 rounded-lg overflow-hidden border border-edge-border">
@@ -60,24 +57,15 @@ export default function RateLimitViz({ rateLimit, rateLimitWindow, algorithm, al
 
         {!rl.redisConnected && (
           <p className="text-center text-sm text-edge-muted mt-5 px-4 py-3 rounded-lg bg-neutral-50 border border-edge-border">
-            Redis offline — gate is open. All requests pass through; rate limiting resumes when Redis
-            reconnects.
+            Redis offline — rate limiting disabled
           </p>
         )}
       </section>
 
       <section className="card">
-        <SectionHeader
-          title="Recent checks"
-          description="Each incoming request is evaluated against the per-IP quota. BLOCKED means the client got HTTP 429."
-        />
+        <SectionHeader title="Recent checks" />
         {!win.recent?.length ? (
-          <EmptyState title="No checks yet">
-            <p>
-              Run <strong>Simulator → Rate limit flood</strong> to exceed the per-IP cap. Blocked requests
-              will appear here as they are rejected at the gate.
-            </p>
-          </EmptyState>
+          <EmptyState>No checks yet</EmptyState>
         ) : (
           <div className="space-y-1 max-h-56 overflow-y-auto font-mono text-xs">
             {win.recent.map((e, i) => (

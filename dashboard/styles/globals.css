@@ -81,7 +81,7 @@ body {
   }
 
   .nav-link {
-    @apply flex items-start gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors
+    @apply flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors
       text-edge-muted hover:text-edge-foreground hover:bg-white/80;
   }
 
@@ -90,7 +90,7 @@ body {
   }
 
   .nav-icon {
-    @apply mt-0.5 shrink-0 text-edge-muted/70;
+    @apply shrink-0 text-edge-muted/70;
   }
 
   .nav-icon-active {
@@ -118,7 +118,7 @@ body {
   }
 
   .status-pill {
-    @apply flex items-start gap-2.5 text-xs font-medium px-3 py-2 rounded-md border border-edge-border w-full;
+    @apply flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-md border border-edge-border;
   }
 
   .status-live {

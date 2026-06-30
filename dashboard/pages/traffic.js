@@ -11,6 +11,7 @@ export default function TrafficPage() {
   const { metrics, history } = useMetricsContext();
   const m = metrics || {};
   const meta = PAGE_META['/traffic'];
+  const compression = m.compression || {};
 
   const pieData =
     m.trafficDistribution?.map((b) => ({
@@ -18,54 +19,26 @@ export default function TrafficPage() {
       value: b.requests || 1,
     })) || [];
 
-  const compression = m.compression || {};
-  const savings = formatBytes(compression.savingsBytes ?? 0);
-
   return (
     <div className="space-y-8">
-      <PageIntro
-        title={meta.title}
-        problem={meta.problem}
-        description={meta.description}
-        workflow={meta.workflow}
-        tip={meta.tip}
-      />
+      <PageIntro title={meta.title} description={meta.description} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard
-          title="Req/s"
-          value={(m.requestsPerSecond ?? 0).toFixed(1)}
-          hint="Current request rate — how much load the edge is handling right now."
-        />
-        <StatCard
-          title="Total Requests"
-          value={m.totalRequests ?? 0}
-          hint="All requests processed since the proxy started."
-        />
-        <StatCard
-          title="Bandwidth Saved"
-          value={savings}
-          hint={`${savings} of data not sent to users thanks to response compression.`}
-        />
+        <StatCard title="Req/s" value={(m.requestsPerSecond ?? 0).toFixed(1)} />
+        <StatCard title="Total Requests" value={m.totalRequests ?? 0} />
+        <StatCard title="Bandwidth Saved" value={formatBytes(compression.savingsBytes ?? 0)} />
         <StatCard
           title="Compression Ratio"
           value={((compression.overallRatio ?? 1) * 100).toFixed(0)}
           unit="%"
-          hint="How much smaller responses are after compression — higher means faster downloads."
         />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <ChartPanel
-          title="Backend Traffic Split"
-          description="Shows which origin server handled traffic recently. Uneven slices may mean one server is overloaded or an algorithm favors it."
-        >
+        <ChartPanel title="Backend Traffic Split">
           <PieChartCard data={pieData} />
         </ChartPanel>
-        <ChartPanel
-          title="Request Timeline"
-          description="Traffic volume over the last minute. Use Simulator to generate load and watch the line move."
-        >
+        <ChartPanel title="Request Timeline">
           <TimeSeriesChart
             data={history}
             lines={[{ key: 'rps', name: 'Requests/s', color: '#09090b' }]}
@@ -74,11 +47,7 @@ export default function TrafficPage() {
       </div>
 
       <section className="card overflow-x-auto">
-        <p className="section-heading mb-1">Per-Backend Utilization</p>
-        <p className="section-desc mb-5">
-          Live breakdown per origin server. DOWN servers are excluded from routing — traffic goes elsewhere
-          automatically.
-        </p>
+        <p className="section-heading mb-4">Per-Backend Utilization</p>
         <table className="w-full text-sm font-mono min-w-[480px]">
           <thead>
             <tr className="table-head">
@@ -93,7 +62,7 @@ export default function TrafficPage() {
             {(m.trafficDistribution || []).length === 0 && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-edge-muted text-sm">
-                  No backend traffic yet — run Simulator → Load balancer demo to see this table fill.
+                  No traffic yet
                 </td>
               </tr>
             )}
@@ -108,7 +77,6 @@ export default function TrafficPage() {
                     className={`inline-block px-2 py-0.5 rounded text-xs ${
                       b.healthy ? 'bg-neutral-100 text-edge-foreground' : 'bg-neutral-200 text-edge-muted'
                     }`}
-                    title={b.healthy ? 'Receiving traffic' : 'Excluded from load balancer'}
                   >
                     {b.healthy ? 'UP' : 'DOWN'}
                   </span>

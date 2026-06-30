@@ -61,8 +61,7 @@ export default function Layout({ children, connected }) {
               {groupIndex > 0 && <div className="nav-group-divider" aria-hidden />}
               <div className={group.featured ? 'nav-group-featured' : 'px-1'}>
                 <p className="nav-group-label">{group.label}</p>
-                {group.hint && <p className="nav-group-hint">{group.hint}</p>}
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 mt-1.5">
                   {group.items.map((item) => {
                     const active = router.pathname === item.href;
                     return (
@@ -71,14 +70,10 @@ export default function Layout({ children, connected }) {
                         href={item.href}
                         className={`nav-link ${active ? 'nav-link-active' : ''}`}
                         onClick={() => setMenuOpen(false)}
-                        title={item.hint}
                         aria-current={active ? 'page' : undefined}
                       >
                         <NavIcon name={item.icon} active={active} />
-                        <span className="min-w-0 flex-1">
-                          <span className="nav-link-label">{item.label}</span>
-                          {item.hint && <span className="nav-link-hint">{item.hint}</span>}
-                        </span>
+                        <span className="nav-link-label">{item.label}</span>
                       </Link>
                     );
                   })}
@@ -90,16 +85,11 @@ export default function Layout({ children, connected }) {
 
         <div className="sidebar-status">
           <div
-            className={`status-pill ${connected ? 'status-live' : 'status-off'}`}
+            className={`status-pill w-full ${connected ? 'status-live' : 'status-off'}`}
             title={status.detail}
           >
             <span className="status-dot" />
-            <span className="leading-snug min-w-0">
-              <span className="block text-[13px]">{status.label}</span>
-              <span className="block text-[10px] text-edge-muted font-normal mt-0.5 leading-snug">
-                {connected ? 'Updates every second' : 'Start the proxy to connect'}
-              </span>
-            </span>
+            {status.label}
           </div>
         </div>
       </aside>

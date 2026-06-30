@@ -30,21 +30,12 @@ export default function LogsPage() {
 
   return (
     <div className="space-y-8">
-      <PageIntro
-        title={meta.title}
-        problem={meta.problem}
-        description={meta.description}
-        workflow={meta.workflow}
-        tip={meta.tip}
-      />
+      <PageIntro title={meta.title} description={meta.description} />
 
       <section className="card overflow-hidden p-0">
         <div className="px-4 sm:px-6 py-4 border-b border-edge-border">
           <p className="section-heading">Request log</p>
-          <p className="section-desc mt-1">
-            Permanent audit trail — each row is one request that passed through the proxy. Refreshes every 5
-            seconds.
-          </p>
+          <p className="section-desc mt-1">Refreshes every 5s</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs font-mono min-w-[640px]">
@@ -53,21 +44,11 @@ export default function LogsPage() {
                 <th className="text-left p-3">Time</th>
                 <th className="text-left p-3">Method</th>
                 <th className="text-left p-3">Endpoint</th>
-                <th className="text-right p-3" title="HTTP status code returned to the client">
-                  Status
-                </th>
-                <th className="text-right p-3" title="End-to-end response time">
-                  Latency
-                </th>
-                <th className="text-center p-3" title="Whether the response came from cache">
-                  Cache
-                </th>
-                <th className="text-left p-3" title="Which backend served the request (if any)">
-                  Backend
-                </th>
-                <th className="text-left p-3" title="Client IP address">
-                  IP
-                </th>
+                <th className="text-right p-3">Status</th>
+                <th className="text-right p-3">Latency</th>
+                <th className="text-center p-3">Cache</th>
+                <th className="text-left p-3">Backend</th>
+                <th className="text-left p-3">IP</th>
               </tr>
             </thead>
             <tbody>
@@ -75,16 +56,14 @@ export default function LogsPage() {
                 <tr>
                   <td colSpan={8}>
                     <EmptyState
-                      title="No requests logged yet"
+                      title="No logs yet"
                       action={
                         <Link href="/simulator" className="btn-primary inline-block text-sm">
                           Open Simulator
                         </Link>
                       }
                     >
-                      Send traffic through the proxy to build a log. Each request records status, latency,
-                      cache result, and which backend answered. Requires PostgreSQL (DATABASE_URL) on the
-                      proxy.
+                      Send traffic to populate the log. Needs DATABASE_URL on the proxy.
                     </EmptyState>
                   </td>
                 </tr>
@@ -99,7 +78,6 @@ export default function LogsPage() {
                       className={
                         log.status_code >= 400 ? 'text-edge-muted' : 'text-edge-foreground font-medium'
                       }
-                      title={log.status_code >= 400 ? 'Request failed or was blocked' : 'Request succeeded'}
                     >
                       {log.status_code}
                     </span>
@@ -109,11 +87,6 @@ export default function LogsPage() {
                     <span
                       className={
                         log.cache_hit ? 'text-edge-foreground font-medium' : 'text-edge-muted'
-                      }
-                      title={
-                        log.cache_hit
-                          ? 'Answered from cache — backend not contacted'
-                          : 'Fetched from backend and stored in cache'
                       }
                     >
                       {log.cache_hit ? 'HIT' : 'MISS'}

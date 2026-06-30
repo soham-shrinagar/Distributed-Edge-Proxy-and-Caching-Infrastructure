@@ -35,33 +35,10 @@ export default function RateLimitPage() {
 
   return (
     <div className="space-y-8">
-      <PageIntro
-        title={meta.title}
-        problem={meta.problem}
-        description={meta.description}
-        workflow={meta.workflow}
-        tip={meta.tip}
-      />
+      <PageIntro title={meta.title} description={meta.description} />
 
-      {!connected && (
-        <OutcomeBanner title={CONNECTION_STATUS.disconnected.label}>
-          {CONNECTION_STATUS.disconnected.detail}
-        </OutcomeBanner>
-      )}
-
-      {!redisOk && (
-        <OutcomeBanner title="Rate limiting disabled">
-          Redis is offline, so the gate is open — all requests pass through. Start Redis and restart the proxy
-          to enforce per-IP limits again.
-        </OutcomeBanner>
-      )}
-
-      {redisOk && blocked > 0 && (
-        <OutcomeBanner title="Rate limit is active">
-          {blocked} request{blocked !== 1 ? 's' : ''} blocked in the last 10 seconds. Those clients received HTTP
-          429 — backends were protected from the excess load.
-        </OutcomeBanner>
-      )}
+      {!connected && <OutcomeBanner>{CONNECTION_STATUS.disconnected.detail}</OutcomeBanner>}
+      {!redisOk && <OutcomeBanner>Redis offline — rate limiting disabled.</OutcomeBanner>}
 
       <RateLimitViz
         rateLimit={rl}
@@ -70,40 +47,15 @@ export default function RateLimitPage() {
         algorithmLabel={policy.label}
       />
 
-      <section>
-        <p className="section-label mb-1">Gate activity</p>
-        <p className="text-xs text-edge-muted mb-4">
-          Every request is checked before it reaches a backend. Blocked requests stop here.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard
-            title="Blocked (10s)"
-            value={blocked}
-            hint="Recent requests rejected with HTTP 429 — never reached a backend."
-          />
-          <StatCard
-            title="Allowed (10s)"
-            value={metrics?.rateLimitWindow?.allowed ?? 0}
-            hint="Requests under the per-IP cap that proceeded to routing and backends."
-          />
-          <StatCard
-            title="Blocked (total)"
-            value={rl.limitedTotal ?? 0}
-            hint="All-time blocked requests since the proxy started."
-          />
-          <StatCard
-            title="Cap"
-            value={`${rl.max ?? 100}/min`}
-            hint="Maximum requests allowed per client IP per minute."
-          />
-        </div>
-      </section>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard title="Blocked (10s)" value={blocked} />
+        <StatCard title="Allowed (10s)" value={metrics?.rateLimitWindow?.allowed ?? 0} />
+        <StatCard title="Blocked (total)" value={rl.limitedTotal ?? 0} />
+        <StatCard title="Cap" value={`${rl.max ?? 100}/min`} />
+      </div>
 
       <section className="card">
-        <SectionHeader
-          title="Counting algorithm"
-          description="Click to switch how the proxy counts requests. Behavior changes immediately for new traffic."
-        />
+        <SectionHeader title="Algorithm" />
         <div className="flex flex-wrap gap-2">
           {ALGORITHMS.map((a) => {
             const info = RATE_LIMIT_ALGORITHMS[a];
@@ -120,21 +72,9 @@ export default function RateLimitPage() {
             );
           })}
         </div>
-        <div className="mt-4 space-y-2 text-sm leading-relaxed">
-          <p className="font-medium text-edge-foreground">{policy.label}</p>
-          <p className="text-edge-muted">{policy.summary}</p>
-          <p className="text-edge-muted">
-            <span className="text-edge-foreground">What you will see:</span> {policy.outcome}
-          </p>
-        </div>
-      </section>
-
-      <section className="card space-y-2">
-        <p className="card-title">How blocking works</p>
-        <p className="text-sm text-edge-muted leading-relaxed">
-          Each client IP gets <strong>{rl.max ?? 100} requests per minute</strong>. When they exceed that,
-          the proxy responds with <code className="font-mono text-edge-foreground">429 Too Many Requests</code>{' '}
-          and a Retry-After header — the backend never sees those requests.
+        <p className="text-sm text-edge-muted mt-4">{policy.summary}</p>
+        <p className="text-xs text-edge-muted mt-3 pt-3 border-t border-edge-border">
+          {rl.max ?? 100} requests/min per IP · over limit → 429
         </p>
       </section>
     </div>

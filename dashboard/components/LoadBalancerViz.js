@@ -21,15 +21,12 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
   return (
     <div className="space-y-6">
       <section className="card">
-        <SectionHeader
-          title="Request path"
-          description="Follow each request: Client → Edge proxy → Backend or Cache. The highlighted node shows where the most recent request was handled."
-        />
+        <SectionHeader title="Request path" />
 
         <div className="flex flex-col items-stretch sm:items-center lg:flex-row justify-center gap-2 sm:gap-3 lg:gap-5 py-4 sm:py-6">
           <div className="flow-node max-w-xs sm:max-w-none mx-auto sm:mx-0">
             <p className="section-label">1 · Client</p>
-            <p className="text-xs text-edge-muted mt-2">User or app sends HTTP request</p>
+            <p className="text-xs text-edge-muted mt-2">Incoming HTTP</p>
           </div>
 
           <span className="flow-arrow text-center sm:hidden">↓</span>
@@ -41,9 +38,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
             <p className="text-[10px] text-edge-muted mt-1 font-mono">{algorithmLabel || algorithm}</p>
             {last && (
               <p className="text-[11px] mt-2 text-edge-muted">
-                {last.outcome === 'cache-hit'
-                  ? 'Answered from cache — backend skipped'
-                  : `Routed to ${last.backendName}`}
+                {last.outcome === 'cache-hit' ? 'Cache hit' : `→ ${last.backendName}`}
               </p>
             )}
           </div>
@@ -66,7 +61,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
                   <p className={`text-xs font-medium ${c.text}`}>{b.name}</p>
                   <p className="text-xs text-edge-muted mt-1 font-mono">:{port}</p>
                   <p className="text-lg font-mono mt-1 text-edge-foreground">{b.activeConnections}</p>
-                  <p className="text-[10px] text-edge-muted">active requests</p>
+                  <p className="text-[10px] text-edge-muted">in-flight</p>
                   {!b.healthy && (
                     <span className="absolute -top-2 -right-2 text-[10px] px-1.5 py-0.5 rounded bg-black text-white">
                       DOWN
@@ -84,7 +79,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
               className={`flow-node min-w-0 sm:min-w-[108px] ${activeId === 'cache' ? 'flow-node-active' : ''}`}
             >
               <p className="text-xs font-medium text-edge-foreground">Cache</p>
-              <p className="text-[10px] text-edge-muted mt-1">Fast path if answer is stored</p>
+              <p className="text-[10px] text-edge-muted mt-1">L1 + Redis</p>
             </div>
           </div>
         </div>
@@ -93,7 +88,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
       <section className="card">
         <SectionHeader
           title="Traffic split"
-          description="How origin traffic was divided across backends in the last 10 seconds. Cache hits are not counted — they never reach a backend."
+          description="Last 10 seconds, origin only"
           action={
             <span className="text-xs text-edge-muted font-mono bg-neutral-50 px-2 py-1 rounded-md border border-edge-border">
               {totalReqs} reqs
@@ -101,12 +96,7 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
           }
         />
         {totalReqs === 0 ? (
-          <EmptyState title="Waiting for backend traffic">
-            <p>
-              Run <strong>Simulator → Load balancer demo</strong> with cache bust OFF. As requests hit each
-              server, this bar shows how load is distributed.
-            </p>
-          </EmptyState>
+          <EmptyState>No backend traffic yet — try Simulator</EmptyState>
         ) : (
           <>
             <div className="flex h-6 rounded-md overflow-hidden mb-4 border border-edge-border">
@@ -144,17 +134,9 @@ export default function LoadBalancerViz({ backends, distribution, routingLog, al
       </section>
 
       <section className="card">
-        <SectionHeader
-          title="Live routing log"
-          description="Newest request at top. Each line shows what the proxy decided and the outcome for that request."
-        />
+        <SectionHeader title="Live routing log" />
         {!routingLog?.length ? (
-          <EmptyState title="No requests yet">
-            <p>
-              Send traffic via Simulator. Each entry will show the path taken — cache hit, backend routed,
-              blocked, or failed.
-            </p>
-          </EmptyState>
+          <EmptyState>Waiting for requests…</EmptyState>
         ) : (
           <div className="space-y-1 max-h-64 overflow-y-auto font-mono text-xs">
             {routingLog.map((e, i) => (

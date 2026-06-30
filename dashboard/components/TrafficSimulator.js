@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import PageIntro, { SectionHeader, EmptyState } from './PageIntro';
 import { sendProxyRequest, ENDPOINTS } from '../services/proxy';
-import { PAGE_META, SIMULATOR_SCENARIOS, PRESET_HINTS } from '../lib/interpret';
+import { PAGE_META } from '../lib/interpret';
 
 const PRESETS = [
   { label: 'Light', intervalMs: 500 },
@@ -16,7 +16,7 @@ const SCENARIOS = [
   {
     id: 'lb-demo',
     name: 'Load balancer demo',
-    description: 'Steady traffic, cache OFF — watch Backends page split traffic live',
+    description: 'Steady traffic, cache off — watch Backends',
     cacheBust: false,
     intervalMs: 120,
     chaos: false,
@@ -25,7 +25,7 @@ const SCENARIOS = [
   {
     id: 'rate-flood',
     name: 'Rate limit flood',
-    description: 'Max-speed burst — triggers 429s on Rate Limit page',
+    description: 'Burst to trigger 429s on Rate Limit',
     cacheBust: true,
     intervalMs: 0,
     chaos: false,
@@ -34,7 +34,7 @@ const SCENARIOS = [
   {
     id: 'errors',
     name: 'Error & failover',
-    description: 'Injects ~35% 500s and timeouts via X-Edge-Chaos header',
+    description: 'Injects ~35% backend failures',
     cacheBust: true,
     intervalMs: 150,
     chaos: true,
@@ -43,7 +43,7 @@ const SCENARIOS = [
   {
     id: 'cache-warm',
     name: 'Cache warming',
-    description: 'Same URLs repeatedly — cache HIT ratio climbs',
+    description: 'Repeat URLs to build cache hits',
     cacheBust: false,
     intervalMs: 80,
     chaos: false,
@@ -195,23 +195,12 @@ export default function TrafficSimulator() {
 
   return (
     <div className="space-y-8">
-      <PageIntro
-        title={meta.title}
-        problem={meta.problem}
-        description={meta.description}
-        workflow={meta.workflow}
-        tip={meta.tip}
-      />
+      <PageIntro title={meta.title} description={meta.description} />
 
       <section className="card">
-        <SectionHeader
-          title="Scenario presets"
-          description="One click configures traffic for a specific demo. After running, open the suggested page to watch the system respond."
-        />
+        <SectionHeader title="Scenario presets" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {SCENARIOS.map((s) => {
-            const extra = SIMULATOR_SCENARIOS[s.id];
-            return (
+          {SCENARIOS.map((s) => (
             <button
               key={s.id}
               type="button"
@@ -225,34 +214,22 @@ export default function TrafficSimulator() {
             >
               <p className="text-sm font-medium text-edge-foreground">{s.name}</p>
               <p className="text-xs text-edge-muted mt-1">{s.description}</p>
-              {extra && (
-                <p className="text-[11px] text-edge-muted mt-2 leading-snug">
-                  <span className="text-edge-foreground">Then watch:</span> {extra.watchOn} — {extra.outcome}
-                </p>
-              )}
               {s.chaos && (
                 <span className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded border border-edge-border text-edge-muted">
-                  injects failures
+                  chaos
                 </span>
               )}
             </button>
-            );
-          })}
+          ))}
         </div>
       </section>
 
       <section className="card">
-        <SectionHeader
-          title="Manual controls"
-          description="Customize what gets sent. Changes apply to the next request — use presets above for guided demos."
-        />
+        <SectionHeader title="Manual controls" />
 
         <div className="space-y-5">
           <div>
             <label className="section-label">Endpoints</label>
-            <p className="text-xs text-edge-muted mt-0.5 mb-2">
-              Which API paths to hit. The proxy routes these to backends like any real client request.
-            </p>
             <div className="flex flex-wrap gap-2 mt-2">
               {ENDPOINTS.map((ep) => (
                 <button
@@ -270,9 +247,6 @@ export default function TrafficSimulator() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="section-label">Interval: {intervalMs}ms</label>
-              <p className="text-xs text-edge-muted mt-0.5 mb-2">
-                Delay between continuous requests. Lower = heavier load.
-              </p>
               <input
                 type="range"
                 min={0}
@@ -291,7 +265,6 @@ export default function TrafficSimulator() {
                     disabled={running}
                     onClick={() => setIntervalMs(p.intervalMs)}
                     className="chip text-xs"
-                    title={PRESET_HINTS[p.label]}
                   >
                     {p.label}
                   </button>
@@ -300,9 +273,6 @@ export default function TrafficSimulator() {
             </div>
             <div>
               <label className="section-label">Burst size</label>
-              <p className="text-xs text-edge-muted mt-0.5 mb-2">
-                How many requests to fire at once when you click Send burst.
-              </p>
               <input
                 type="number"
                 min={1}
@@ -315,25 +285,14 @@ export default function TrafficSimulator() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 text-sm text-edge-foreground">
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" checked={cacheBust} onChange={(e) => setCacheBust(e.target.checked)} className="mt-1" />
-              <span>
-                <span className="font-medium">Cache bust</span>
-                <span className="block text-xs text-edge-muted mt-0.5">
-                  Appends a unique query string so every request is a MISS — forces traffic to backends.
-                </span>
-              </span>
+          <div className="flex flex-col gap-2 text-sm text-edge-foreground">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={cacheBust} onChange={(e) => setCacheBust(e.target.checked)} />
+              Cache bust (unique URL each time)
             </label>
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" checked={chaos} onChange={(e) => setChaos(e.target.checked)} className="mt-1" />
-              <span>
-                <span className="font-medium">Error simulation</span>
-                <span className="block text-xs text-edge-muted mt-0.5">
-                  Injects ~35% backend failures and timeouts. Watch the proxy retry and failover on the Errors
-                  page.
-                </span>
-              </span>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={chaos} onChange={(e) => setChaos(e.target.checked)} />
+              Error simulation (~35% failures)
             </label>
           </div>
 
@@ -375,40 +334,28 @@ export default function TrafficSimulator() {
         </div>
       </section>
 
-      <section>
-        <p className="section-label mb-1">Session results</p>
-        <p className="text-xs text-edge-muted mb-3">
-          Outcomes from traffic sent in this browser session — not global proxy totals.
-        </p>
       <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
-        <MiniStat label="Sent" value={stats.sent} hint="Total requests fired" />
-        <MiniStat label="OK" value={stats.ok} hint="Successful responses" />
-        <MiniStat label="Errors" value={stats.errors} muted hint="Failed responses" />
-        <MiniStat label="429" value={stats.rateLimited} muted hint="Rate limited" />
-        <MiniStat label="Chaos" value={stats.chaos} muted hint="With error injection" />
-        <MiniStat label="HIT" value={stats.cacheHits} hint="Served from cache" />
-        <MiniStat label="MISS" value={stats.cacheMisses} muted hint="Fetched from backend" />
-        <MiniStat label="Avg ms" value={avgLatency} hint="Average response time" />
+        <MiniStat label="Sent" value={stats.sent} />
+        <MiniStat label="OK" value={stats.ok} />
+        <MiniStat label="Errors" value={stats.errors} muted />
+        <MiniStat label="429" value={stats.rateLimited} muted />
+        <MiniStat label="Chaos" value={stats.chaos} muted />
+        <MiniStat label="HIT" value={stats.cacheHits} />
+        <MiniStat label="MISS" value={stats.cacheMisses} muted />
+        <MiniStat label="Avg ms" value={avgLatency} />
       </div>
-      </section>
 
       {running && (
         <div className="flex items-center gap-2 text-sm text-edge-muted">
           <span className="w-1.5 h-1.5 rounded-full bg-edge-foreground animate-pulse" />
-          Sending traffic through the proxy{chaos ? ' with simulated backend failures' : ''} — open other pages
-          to watch them update live.
+          Sending traffic…
         </div>
       )}
 
       <section className="card">
-        <SectionHeader
-          title="Recent requests"
-          description="Last 20 responses from this session. Each row shows what the proxy returned."
-        />
+        <SectionHeader title="Recent requests" />
         {recent.length === 0 ? (
-          <EmptyState title="No requests sent yet">
-            <p>Pick a scenario preset above, or use Start continuous / Send burst to generate traffic.</p>
-          </EmptyState>
+          <EmptyState>No requests yet</EmptyState>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
@@ -442,14 +389,13 @@ export default function TrafficSimulator() {
   );
 }
 
-function MiniStat({ label, value, muted, hint }) {
+function MiniStat({ label, value, muted }) {
   return (
-    <div className="card p-3 sm:p-4 text-center" title={hint}>
+    <div className="card p-3 sm:p-4 text-center">
       <p className="section-label">{label}</p>
       <p className={`text-xl font-semibold font-mono mt-1 ${muted ? 'text-edge-muted' : 'text-edge-foreground'}`}>
         {value}
       </p>
-      {hint && <p className="text-[10px] text-edge-muted mt-1 leading-snug hidden sm:block">{hint}</p>}
     </div>
   );
 }

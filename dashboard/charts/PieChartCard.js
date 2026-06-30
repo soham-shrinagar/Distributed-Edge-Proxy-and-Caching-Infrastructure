@@ -7,10 +7,7 @@ const COLORS = ['#0a0a0a', '#404040', '#737373', '#a3a3a3', '#d4d4d4'];
 export default function PieChartCard({ data, height = 260 }) {
   if (!data?.length) {
     return (
-      <div className="h-64 flex flex-col items-center justify-center text-edge-muted text-sm text-center px-4">
-        <p className="font-medium text-edge-foreground">No traffic data yet</p>
-        <p className="mt-1 text-xs">Generate traffic in Simulator to see how load is split across backends.</p>
-      </div>
+      <div className="h-64 flex items-center justify-center text-edge-muted text-sm">No data</div>
     );
   }
 
